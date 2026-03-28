@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- 1. Define os acentos (ç, á, õ) corretamente -->
+    <meta charset="UTF-8">
+
+    <!-- 2. Faz o site abrir corretamente no celular (Responsividade) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 3. Melhora a compatibilidade com navegadores antigos da Microsoft -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>{% block title%}{% endblock %}</title>
+</head>
+<body>
+    <div class="menu">
+      <a href="{% url 'lojaapp:home' %}">Home</a>
+      <a href="{% url 'lojaapp:sobre' %}">Sobre</a> 
+      <a href="{% url 'lojaapp:imagem' %}">Imagens</a> 
+      <a href="{% url 'lojaapp:contato' %}">Contato</a>          
+    </div> 
+    <h1>Bem-vindo à minha Loja Django!</h1>
+    <p>Se você está vendo isso, suas pastas e URLs estão configuradas corretamente.</p>
+    {% block content %}
+    {% endblock content %}
+</body>
+</html>

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Todos os Produtos{% endblock %}
+
+{% block content %}   
+    <div class="container">
+        <h1 class="text-center mt-4">TODOS OS PRODUTOS POR CATEGORIA</h1>
+        <hr>
+        
+        {% for cat in todascategorias %}
+            <h2 class="mt-5">{{ cat.titulo }}</h2>
+            <div class="row">
+                {% for p in cat.produto_set.all %}
+                <div class="col-md-3 mt-4">
+                    <div class="product-item">
+                        <!-- Link no Título -->
+                        <h4>
+                            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" style="text-decoration: none; color: black;">
+                                {{ p.titulo }}
+                            </a>
+                        </h4>               
+                        
+                        <!-- Link na Imagem -->
+                        <a href="{% url 'lojaapp:produtodetalhe' p.slug %}">
+                            {% if p.image %}
+                                <img src="{{ p.image.url }}" alt="{{ p.titulo }}" class="img-fluid" style="height: 250px; width: 100%; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                                <div style="height: 250px; background: #eee; display: flex; align-items: center; justify-content: center;">Sem imagem</div>
+                            {% endif %}
+                        </a>
+                        
+                        <div class="mt-3">
+                            <p>Preço: <strike>R$ {{ p.preco_mercado }}</strike> <br>
+                            <span class="text-success fw-bold" style="font-size: 1.2rem;">R$ {{ p.venda }}</span></p>
+                            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
+                            <a href="#" class="btn btn-success btn-sm">Comprar</a>
+                        </div>
+                        <hr>
+                    </div>
+                </div>  
+                {% endfor %}
+            </div> <!-- Fecha a row da categoria -->
+        {% empty %}
+            <p class="text-muted">Nenhuma categoria encontrada.</p>
+        {% endfor %}
+    </div>        
+{% endblock %}

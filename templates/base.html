@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -15,10 +16,10 @@
 </head>
 <body>
     <div class="menu">
-      <a href="{% url 'lojaapp:home' %}">Home</a>
-      <a href="{% url 'lojaapp:sobre' %}">Sobre</a>       
-      <a href="{% url 'lojaapp:contato' %}">Contato</a>
+      <a href="{% url 'lojaapp:home' %}">Home</a>        
       <a href="{% url 'lojaapp:todos-produtos' %}">Categorias</a>
+      <a href="{% url 'lojaapp:contato' %}">Contato</a>
+      <a href="{% url 'lojaapp:sobre' %}">Sobre</a> 
       <hr> 
              
     </div>     

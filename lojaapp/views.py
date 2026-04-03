@@ -1,6 +1,6 @@
-from django.views.generic import TemplateView
-from .models import Produto
-from .models import Categoria
+from django.views.generic import TemplateView, View
+from django.shortcuts import render, redirect
+from .models import Produto, Categoria, Carrinho, CarrinhoProduto
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -18,11 +18,59 @@ class ProdutoView(TemplateView):
     
 class ProdutoDetalheView(TemplateView):
     template_name = "produto_detalhe.html"
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        url_slug = self.kwargs['slug'] # Pega o slug da URL
-        context["produto"] = Produto.objects.get(slug=url_slug) # Busca o produto específico
+        url_slug = self.kwargs['slug']        
+        produto_obj = Produto.objects.get(slug=url_slug)       
+        produto_obj.visualizacao += 1
+        produto_obj.save()       
+        context["produto"] = produto_obj
         return context
+    
+class AddCarrinhoView(View):
+    # O método GET apenas mostra a página de confirmação
+    def get(self, request, *args, **kwargs):
+        pro_id = self.kwargs['pro_id']
+        produto_obj = Produto.objects.get(id=pro_id)
+        return render(request, "add_carrinho.html", {"produto": produto_obj})
+
+    # O método POST salva os dados no Banco de Dados
+    def post(self, request, *args, **kwargs):
+        pro_id = self.kwargs['pro_id']
+        produto_obj = Produto.objects.get(id=pro_id)
+        quantidade = int(request.POST.get("quantidade", 1))
+
+        # 1. Busca ou cria o carrinho na sessão do navegador
+        carrinho_id = request.session.get("carrinho_id", None)
+        if carrinho_id:
+            try:
+                carrinho_obj = Carrinho.objects.get(id=carrinho_id)
+            except Carrinho.DoesNotExist:
+                carrinho_obj = Carrinho.objects.create(total=0)
+                request.session["carrinho_id"] = carrinho_obj.id
+        else:
+            carrinho_obj = Carrinho.objects.create(total=0)
+            request.session["carrinho_id"] = carrinho_obj.id
+
+        # 2. Adiciona o produto ou aumenta a quantidade se já existir
+        item, created = CarrinhoProduto.objects.get_or_create(
+            carrinho=carrinho_obj,
+            produto=produto_obj,
+            defaults={'quantidade': quantidade, 'subtotal': produto_obj.venda * quantidade}
+        )
+
+        if not created:
+            item.quantidade += quantidade
+            item.subtotal += (produto_obj.venda * quantidade)
+            item.save()
+
+        # 3. Atualiza o total geral do carrinho
+        carrinho_obj.total += (produto_obj.venda * quantidade)
+        carrinho_obj.save()
+
+        # Após salvar, redireciona para a Home (ou para a página do Carrinho)
+        return redirect("lojaapp:home")
 
 class ContatoView(TemplateView):
     template_name = "contato.html"

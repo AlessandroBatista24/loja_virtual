@@ -3,7 +3,70 @@
 {% block title %}{{ produto.titulo }}{% endblock %}
 
 {% block content %}   
-    <div class="container">
-        <h4>Produto:{{ produto.titulo }}</h4>
+    <div class="container mt-4">
+        <!-- Navegação (Breadcrumb) -->
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'lojaapp:home' %}">Home</a></li>
+            <li class="breadcrumb-item active">{{ produto.titulo }}</li>
+          </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Coluna da Imagem -->
+            <div class="col-md-6">
+                {% if produto.image %}
+                    <img src="{{ produto.image.url }}" alt="{{ produto.titulo }}" class="img-fluid rounded shadow">
+                {% else %}
+                    <div class="alert alert-secondary text-center p-5">Nenhuma imagem disponível.</div>
+                {% endif %}
+            </div>
+
+            <!-- Coluna das Informações -->
+            <div class="col-md-6">
+                <h2 class="fw-bold">{{ produto.titulo }}</h2>
+                
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-secondary">Categoria: {{ produto.categoria.titulo }}</span>
+                    <span class="text-muted">
+                        <i class="bi bi-eye"></i> {{ produto.visualizacao }} visualizações
+                    </span>
+                </div>
+                <hr>
+
+                <!-- Preços -->
+                <h4 class="text-success fw-bold">R$ {{ produto.venda }}</h4>
+                <p class="text-muted"><strike>De: R$ {{ produto.preco_mercado }}</strike></p>
+
+                <!-- Descrição -->
+                <div class="my-4">
+                    <h5>Descrição:</h5>
+                    <p class="text-justify">{{ produto.discricao }}</p>
+                </div>
+
+                <!-- Detalhes Extras -->
+                {% if produto.garantia %}
+                    <p><strong>🛡️ Garantia:</strong> {{ produto.garantia }}</p>
+                {% endif %}
+
+                {% if produto.return_devolucao %}
+                    <p><strong>🔄 Devolução:</strong> {{ produto.return_devolucao }}</p>
+                {% endif %}
+
+          <!-- Botões de Ação -->
+                    <div class="d-grid gap-2 mt-4">
+                        <!-- Link atualizado para levar ao carrinho passando o ID do produto -->
+                        <a href="{% url 'lojaapp:addcarrinho' produto.id %}" class="btn btn-success btn-lg fw-bold">
+                            <i class="bi bi-cart-plus"></i> Comprar Agora
+                        </a>
+                        
+                        <a href="{% url 'lojaapp:home' %}" class="btn btn-outline-primary">
+                            Voltar para a Loja
+                        </a>
+                    </div>
+
+           </div>
+            </div>
+        </div>        
     </div>        
 {% endblock %}

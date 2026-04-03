@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}CARRINHO{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4" style="border-radius: 15px;">
+        <h2 class="text-center fw-bold">Confirmar Item no Carrinho</h2>
+        <hr>
+        <div class="row align-items-center">
+            <!-- Coluna da Imagem (Agora com o campo correto 'image') -->
+            <div class="col-md-4 text-center">
+                {% if produto.image %}
+                    <img src="{{ produto.image.url }}" class="img-fluid rounded shadow" alt="{{ produto.titulo }}" style="max-height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-light rounded p-5">Sem imagem</div>
+                {% endif %}
+            </div>
+
+            <!-- Coluna das Informações -->
+            <div class="col-md-8">
+                <h3 class="fw-bold">{{ produto.titulo }}</h3>
+                <p class="text-muted small">Categoria: {{ produto.categoria.titulo }}</p>
+                
+                <!-- Valor (Agora com o campo correto 'venda') -->
+                <h4 class="text-success fw-bold">Preço: R$ {{ produto.venda }}</h4>
+                
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    
+                    <!-- Campo de Quantidade -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Quantidade desejada:</label>
+                        <input type="number" name="quantidade" value="1" min="1" class="form-control" style="width: 120px; border-radius: 8px;">
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <!-- Botão Verde Padronizado -->
+                        <button type="submit" class="btn btn-success btn-lg fw-bold">
+                            <i class="bi bi-check-circle"></i> Confirmar e Adicionar
+                        </button>
+                        <!-- Botão de Voltar Padronizado -->
+                        <a href="{% url 'lojaapp:home' %}" class="btn btn-outline-primary btn-lg">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

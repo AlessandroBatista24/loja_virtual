@@ -39,7 +39,17 @@ class Carrinho(models.Model):
 
     def __str__(self):
         return "Carrinho:" + str(self.id)
-        
+
+class Avaliacao(models.Model):
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="avaliacoes")
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    nota = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)]) # Notas de 1 a 5
+    comentario = models.TextField()
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.cliente.nome_completo} - {self.produto.titulo} ({self.nota})"
+       
 class CarrinhoProduto(models.Model):
     carrinho = models.ForeignKey(Carrinho, on_delete=models.CASCADE)
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)

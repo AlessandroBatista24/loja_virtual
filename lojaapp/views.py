@@ -1,6 +1,9 @@
 from django.views.generic import TemplateView, View
 from django.shortcuts import render, redirect
-from .models import Produto, Categoria, Carrinho, CarrinhoProduto
+# Em lojaapp/views.py
+from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao
+
+from django.db.models import Avg 
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -23,10 +26,19 @@ class ProdutoDetalheView(TemplateView):
         context = super().get_context_data(**kwargs)
         url_slug = self.kwargs['slug']        
         produto_obj = Produto.objects.get(slug=url_slug)       
+        
+        # Incrementa visualização
         produto_obj.visualizacao += 1
         produto_obj.save()       
+        
         context["produto"] = produto_obj
+        # Busca todas as avaliações deste produto
+        context["avaliacoes"] = Avaliacao.objects.filter(produto=produto_obj).order_by("-criado_em")
+        # Calcula a média (opcional)
+        context["media_notas"] = Avaliacao.objects.filter(produto=produto_obj).aggregate(Avg('nota'))['nota__avg']
+        
         return context
+
     
 class AddCarrinhoView(View):
     # O método GET apenas mostra a página de confirmação
@@ -77,6 +89,22 @@ class ContatoView(TemplateView):
 
 class TabelasView(TemplateView):
     template_name = "tabelas.html"
+
+class MeuCarrinhoView(TemplateView):
+    template_name = "meu_carrinho.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        carrinho_id = self.request.session.get("carrinho_id", None)
+        if carrinho_id:
+            try:
+                carrinho_obj = Carrinho.objects.get(id=carrinho_id)
+                context["carrinho"] = carrinho_obj
+            except Carrinho.DoesNotExist:
+                context["carrinho"] = None
+        else:
+            context["carrinho"] = None
+        return context
 
 class SobreView(TemplateView):
     template_name = "sobre.html"

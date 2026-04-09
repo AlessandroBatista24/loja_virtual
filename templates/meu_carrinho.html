@@ -28,7 +28,7 @@
                                 <th class="text-center">Ação</th>
                             </tr>
                         </thead>
-                        <tbody>
+                      <tbody>
                             {% for item in carrinho.carrinhoproduto_set.all %}
                             <tr>
                                 <td>
@@ -39,19 +39,34 @@
                                         <span class="fw-bold">{{ item.produto.titulo }}</span>
                                     </div>
                                 </td>
-                                <td class="text-center">{{ item.quantidade }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        <!-- Botão Menos: Fica vermelho (danger) no hover -->
+                                        <a href="{% url 'lojaapp:manipularcarrinho' item.produto.id %}?acao=dec" 
+                                        class="btn btn-sm btn-outline-danger px-2 fw-bold" style="width: 30px;">-</a>
+                                        
+                                        <span class="fw-bold" style="min-width: 20px;">{{ item.quantidade }}</span>
+                                        
+                                        <!-- Botão Mais: Fica verde (success) no hover -->
+                                        <a href="{% url 'lojaapp:manipularcarrinho' item.produto.id %}?acao=inc" 
+                                        class="btn btn-sm btn-outline-success px-2 fw-bold" style="width: 30px;">+</a>
+                                    </div>
+                                </td>
                                 <td>R$ {{ item.produto.venda }}</td>
                                 <td class="fw-bold text-success">R$ {{ item.subtotal }}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-danger">Remover</button>
+                                    <a href="{% url 'lojaapp:manipularcarrinho' item.produto.id %}?acao=rmv" class="btn btn-sm btn-outline-danger">
+                                        Remover
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
+
                     </table>
                 </div>
 
-                <!-- Nova Seção de Resumo Alinhada à Esquerda -->
+                <!-- Organização dos Botões Corrigida -->
                 <div class="row">
                     <div class="col-md-5">
                         <div class="card bg-light border-0 p-3 shadow-sm">
@@ -66,18 +81,22 @@
                                 <span>R$ {{ carrinho.total }}</span>
                             </div>
 
-                            <!-- Botões Lado a Lado -->
+                            <!-- Botões Lado a Lado - Alterado apenas aqui -->
                             <div class="d-flex gap-2">
-                                <a href="{% url 'lojaapp:home' %}" class="btn btn-outline-primary w-50">
-                                    <i class="bi bi-arrow-left"></i> Voltar
+                                <a href="{% url 'lojaapp:home' %}" class="btn btn-outline-primary w-25 btn-sm d-flex align-items-center justify-content-center">
+                                    Voltar
                                 </a>
-                                <a href="#" class="btn btn-success w-50 fw-bold">
+                                <a href="{% url 'lojaapp:manipularcarrinho' 0 %}?acao=limpar" class="btn btn-outline-danger w-25 btn-sm d-flex align-items-center justify-content-center">
+                                    Limpar
+                                </a>
+                                <a href="{% url 'lojaapp:finalizarpedido' %}" class="btn btn-success w-50 fw-bold">
                                     Finalizar <i class="bi bi-check2-circle"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
+
 
             {% else %}
                 <div class="alert alert-secondary text-center p-5 shadow-sm">

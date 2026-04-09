@@ -109,6 +109,62 @@ class MeuCarrinhoView(TemplateView):
 class SobreView(TemplateView):
     template_name = "sobre.html"
 
+class ManipularCarrinhoView(View):
+    def get(self, request, *args, **kwargs):
+        pro_id = self.kwargs['pro_id']
+        acao = request.GET.get("acao")
+        carrinho_id = request.session.get("carrinho_id")
+        
+        if carrinho_id:
+            try:
+                carrinho_obj = Carrinho.objects.get(id=carrinho_id)
+                
+                # Ação de Limpar Carrinho Inteiro
+                if acao == "limpar":
+                    carrinho_obj.delete()
+                    if "carrinho_id" in request.session:
+                        del request.session["carrinho_id"]
+                
+                else:
+                    # Ações de Itens Individuais (+, -, rmv)
+                    produto_obj = Produto.objects.get(id=pro_id)
+                    item = CarrinhoProduto.objects.filter(carrinho=carrinho_obj, produto=produto_obj).first()
+                    
+                    if item:
+                        if acao == "inc":
+                            item.quantidade += 1
+                            item.subtotal += produto_obj.venda
+                            item.save()
+                            carrinho_obj.total += produto_obj.venda
+                        
+                        elif acao == "dec":
+                            if item.quantidade > 1:
+                                item.quantidade -= 1
+                                item.subtotal -= produto_obj.venda
+                                item.save()
+                                carrinho_obj.total -= produto_obj.venda
+                            else:
+                                carrinho_obj.total -= item.subtotal
+                                item.delete()
+                        
+                        elif acao == "rmv":
+                            carrinho_obj.total -= item.subtotal
+                            item.delete()
+                        
+                        carrinho_obj.save()
+
+                # Se após as alterações de itens o carrinho ficou vazio, removemos ele
+                if carrinho_id and Carrinho.objects.filter(id=carrinho_id).exists():
+                    if not carrinho_obj.carrinhoproduto_set.exists():
+                        carrinho_obj.delete()
+                        if "carrinho_id" in request.session:
+                            del request.session["carrinho_id"]
+
+            except (Carrinho.DoesNotExist, Produto.DoesNotExist):
+                pass
+                
+        return redirect("lojaapp:carrinho")
+    
 class CategoriaView(TemplateView):
     template_name = "todos_produtos.html"
     
@@ -116,5 +172,6 @@ class CategoriaView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["todascategorias"] = Categoria.objects.all()
         return context
+
 
     

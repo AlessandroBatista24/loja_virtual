@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cliente, Categoria, Produto, Carrinho, CarrinhoProduto, Pedido_order
+from .models import Cliente, Categoria, Produto, Carrinho, CarrinhoProduto, Pedido_order, Avaliacao
 
 # 1. Configuração para exibir os produtos DENTRO da página do Carrinho
 class CarrinhoProdutoInline(admin.TabularInline):
@@ -28,3 +28,4 @@ admin.site.register(Pedido_order, PedidoAdmin) # Usa a configuração especial
 
 # Opcional: Registrar o CarrinhoProduto sozinho também, se quiser
 admin.site.register(CarrinhoProduto)
+admin.site.register(Avaliacao)

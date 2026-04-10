@@ -1,9 +1,9 @@
 from django.views.generic import TemplateView, View
 from django.shortcuts import render, redirect
-# Em lojaapp/views.py
-from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao
-
 from django.db.models import Avg 
+# Importação corrigida com Pedido_order incluso
+from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order
+from .forms import CheckoutForm
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -87,8 +87,49 @@ class AddCarrinhoView(View):
 class ContatoView(TemplateView):
     template_name = "contato.html"
 
-class TabelasView(TemplateView):
-    template_name = "tabelas.html"
+class CheckoutView(View):
+    def get(self, request, *args, **kwargs):
+        carrinho_id = request.session.get("carrinho_id")
+        carrinho_obj = Carrinho.objects.filter(id=carrinho_id).first() if carrinho_id else None
+        return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj})
+
+    def post(self, request, *args, **kwargs):
+        carrinho_id = request.session.get("carrinho_id")
+        carrinho_obj = Carrinho.objects.filter(id=carrinho_id).first()
+
+        if not carrinho_obj:
+            return redirect("lojaapp:home")
+
+        # Pega os dados que o usuário digitou
+        nome = request.POST.get("ordenado_por")
+        email = request.POST.get("email")
+        tel = request.POST.get("telefone")
+        endereco = request.POST.get("endereco_envio")
+
+        # CRIA O PEDIDO NO BANCO
+        try:
+            novo_pedido = Pedido_order.objects.create(
+                carrinho=carrinho_obj,
+                ordenado_por=nome,
+                endereco_envio=endereco,
+                telefone=tel,
+                email=email,
+                subtotal=carrinho_obj.total,
+                disconto=0,
+                total=carrinho_obj.total,
+                pedido_status="Pedido Recebido"
+            )
+            
+            # Limpa o carrinho da sessão apenas DEPOIS de salvar o pedido
+            del request.session["carrinho_id"]
+            
+            # Redireciona para a página de sucesso/pagamento
+            return render(request, "pagamento.html", {"pedido": novo_pedido})
+            
+        except Exception as e:
+            print(f"Erro ao salvar pedido: {e}")
+            return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj, "erro": "Erro ao processar pedido."})
+
 
 class MeuCarrinhoView(TemplateView):
     template_name = "meu_carrinho.html"

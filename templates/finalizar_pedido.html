@@ -14,7 +14,6 @@
     <h2 class="fw-bold mb-4">Checkout</h2>
 
     <div class="row">
-        <!-- Formulário de Entrega -->
         <div class="col-md-7">
             <div class="card shadow-sm p-4 mb-4">
                 <h4 class="fw-bold mb-3">Informações de Envio</h4>
@@ -23,19 +22,19 @@
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Nome Completo</label>
-                            <input type="text" class="form-control" required>
+                            <input type="text" name="ordenado_por" class="form-control" placeholder="Seu nome aqui" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">E-mail</label>
-                            <input type="email" class="form-control" required>
+                            <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Telefone</label>
-                            <input type="text" class="form-control" required>
+                            <input type="text" name="telefone" class="form-control" placeholder="(00) 00000-0000" required>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Endereço de Entrega</label>
-                            <textarea class="form-control" rows="3" placeholder="Rua, número, bairro, CEP..." required></textarea>
+                            <textarea name="endereco_envio" class="form-control" rows="3" placeholder="Rua, número, bairro, CEP..." required></textarea>
                         </div>
                     </div>
                     <hr class="my-4">
@@ -46,15 +45,20 @@
             </div>
         </div>
 
-        <!-- Coluna Lateral de Resumo -->
         <div class="col-md-5">
             <div class="card bg-light border-0 p-3 shadow-sm">
-                <h4 class="fw-bold">Seu Pedido</h4>
+                <h4 class="fw-bold">Resumo do Pedido</h4>
                 <hr>
-                <!-- Aqui você poderá adicionar um loop simples para listar os nomes dos produtos -->
-                <p class="text-muted">A revisão dos itens do carrinho aparecerá aqui.</p>
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for item in carrinho.carrinhoproduto_set.all %}
+                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                        {{ item.produto.titulo }} (x{{ item.quantidade }})
+                        <span>R$ {{ item.subtotal }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
                 
-                <div class="d-flex justify-content-between fs-5 fw-bold text-success mt-3">
+                <div class="d-flex justify-content-between fs-5 fw-bold text-success mt-3 p-2">
                     <span>Total a pagar:</span>
                     <span>R$ {{ carrinho.total }}</span>
                 </div>

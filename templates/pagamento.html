@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Pagamento{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-lg p-5" style="border-radius: 20px;">
+                <div class="mb-4">
+                    <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h2 class="fw-bold">Pedido Recebido com Sucesso!</h2>
+                <p class="text-muted">Obrigado, <strong>{{ pedido.ordenado_por }}</strong>. Seu pedido nº <strong>{{ pedido.id }}</strong> foi registrado.</p>
+                <hr>
+                
+                <div class="text-start mb-4">
+                    <h5 class="fw-bold">Resumo do Envio:</h5>
+                    <p class="mb-1"><strong>Endereço:</strong> {{ pedido.endereco_envio }}</p>
+                    <p class="mb-1"><strong>Telefone:</strong> {{ pedido.telefone }}</p>
+                    <p><strong>Total a Pagar:</strong> <span class="text-success fw-bold">R$ {{ pedido.total }}</span></p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Próximo Passo:</strong> Integre aqui o seu meio de pagamento (Pix, Cartão ou Boleto).
+                </div>
+
+                <a href="{% url 'lojaapp:home' %}" class="btn btn-primary btn-lg mt-3">
+                    Voltar para a Loja
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

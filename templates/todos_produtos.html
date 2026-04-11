@@ -3,45 +3,47 @@
 {% block title %}Todos os Produtos{% endblock %}
 
 {% block content %}   
-    <div class="container">
-        <h1 class="text-center mt-4">TODOS OS PRODUTOS POR CATEGORIA</h1>
-        <hr>
+    <div style="margin-top: 20px;">
+        <h1 style="text-align: center; color: #333; text-transform: uppercase;">Produtos por Categoria</h1>
+        <hr style="border: 0; border-top: 2px solid #198754; width: 50px; margin: 20px auto;">
         
         {% for cat in todascategorias %}
-            <h2 class="mt-5">{{ cat.titulo }}</h2>
-            <div class="row">
-                {% for p in cat.produto_set.all %}
-                <div class="col-md-3 mt-4">
-                    <div class="product-item">
-                        <!-- Link no Título -->
-                        <h4>
-                            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" style="text-decoration: none; color: black;">
-                                {{ p.titulo }}
-                            </a>
-                        </h4>               
-                        
-                        <!-- Link na Imagem -->
+            <div style="margin-top: 50px;">
+                <h2 style="color: #198754; border-bottom: 2px solid #eee; padding-bottom: 10px;">{{ cat.titulo }}</h2>
+                
+                <div class="row">
+                    {% for p in cat.produto_set.all %}
+                    <div class="card">
+                        <!-- Imagem com Link -->
                         <a href="{% url 'lojaapp:produtodetalhe' p.slug %}">
                             {% if p.image %}
-                                <img src="{{ p.image.url }}" alt="{{ p.titulo }}" class="img-fluid" style="height: 250px; width: 100%; object-fit: cover; border-radius: 8px;">
+                                <img src="{{ p.image.url }}" alt="{{ p.titulo }}">
                             {% else %}
-                                <div style="height: 250px; background: #eee; display: flex; align-items: center; justify-content: center;">Sem imagem</div>
+                                <div style="height: 180px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">Sem imagem</div>
                             {% endif %}
                         </a>
                         
-                        <div class="mt-3">
-                            <p>Preço: <strike>R$ {{ p.preco_mercado }}</strike> <br>
-                            <span class="text-success fw-bold" style="font-size: 1.2rem;">R$ {{ p.venda }}</span></p>
-                            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
-                            <a href="#" class="btn btn-success btn-sm">Comprar</a>
+                        <h4 style="margin: 15px 0 5px;">
+                            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" style="text-decoration: none; color: #333;">{{ p.titulo }}</a>
+                        </h4>
+                        
+                        <p style="color: #888; font-size: 0.8rem; margin: 0;"><strike>R$ {{ p.preco_mercado }}</strike></p>
+                        <h3 style="color: #198754; margin: 5px 0;">R$ {{ p.venda }}</h3>
+                        
+                        <div class="acoes">
+                            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes">Detalhes</a>
+                            <a href="{% url 'lojaapp:addcarrinho' p.id %}" class="btn-verde">Comprar</a>
                         </div>
-                        <hr>
-                    </div>
-                </div>  
-                {% endfor %}
-            </div> <!-- Fecha a row da categoria -->
+                    </div>  
+                    {% empty %}
+                        <p style="color: #999; font-style: italic;">Nenhum produto cadastrado nesta categoria.</p>
+                    {% endfor %}
+                </div> <!-- Fecha a row da categoria -->
+            </div>
         {% empty %}
-            <p class="text-muted">Nenhuma categoria encontrada.</p>
+            <div style="text-align: center; padding: 50px;">
+                <p style="color: #888;">Nenhuma categoria encontrada.</p>
+            </div>
         {% endfor %}
     </div>        
 {% endblock %}

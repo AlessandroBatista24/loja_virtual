@@ -1,8 +1,29 @@
 {% extends "base.html" %}
-{% block title%}Sobre{% endblock %}
+{% block title %}Sobre Nós{% endblock %}
+
 {% block content %}
-    <h1>Bem-vindo!</h1>
-    <p>Se esta vendo parabens funcionou.</p>
-    <h2>Conheça um pouco sobre nossa empresa!</h2>
-    <p>Parabens esta aprendendo!</p>
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;">
+    
+    <div style="color: #198754; font-size: 3rem; margin-bottom: 20px;">
+        🏢
+    </div>
+
+    <h1 style="color: #333; text-transform: uppercase; margin-bottom: 10px;">Bem-vindo!</h1>
+    <p style="color: #198754; font-weight: bold; font-size: 1.1rem;">Se está vendo isso, parabéns: funcionou!</p>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+    
+    <h2 style="color: #333; margin-bottom: 20px;">Conheça um pouco sobre nossa empresa</h2>
+    
+    <div style="color: #666; line-height: 1.6; text-align: justify; background: #f9f9f9; padding: 25px; border-radius: 10px; border-left: 5px solid #198754;">
+        <p>Parabéns, você está aprendendo! Este espaço é reservado para contar a história da sua loja, sua missão e seus valores.</p>
+        <p>O Django é uma ferramenta poderosa e agora você já tem toda a base visual e estrutural para um e-commerce funcional.</p>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'lojaapp:home' %}" class="btn-verde" style="padding: 15px 40px; text-decoration: none; text-transform: uppercase;">
+            Voltar para as Compras
+        </a>
+    </div>
+</div>
 {% endblock %}

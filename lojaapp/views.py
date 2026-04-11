@@ -1,15 +1,39 @@
 from django.views.generic import TemplateView, View
 from django.shortcuts import render, redirect
 from django.db.models import Avg 
-# Importação corrigida com Pedido_order incluso
-from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order
-from .forms import CheckoutForm
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+
+# IMPORTANTE: Adicione o 'Cliente' na lista abaixo
+from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order, Cliente
+
+# Define o User para ser usado na ClienteRegistroView
+User = get_user_model()
+
 
 class HomeView(TemplateView):
     template_name = "home.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["produto_list"] = Produto.objects.all().order_by("-id")
+        
+        # 1. Pega o que o usuário digitou no campo 'q' do seu novo cabeçalho
+        query = self.request.GET.get('q')
+        
+        if query:
+            # 2. Filtra produtos onde o título contém o que foi digitado
+            # O 'icontains' faz a busca ser inteligente (ignora maiúsculas/minúsculas)
+            context["produto_list"] = Produto.objects.filter(
+                titulo__icontains=query
+            ).order_by("-id")
+            
+            # Adicionamos o termo de busca ao contexto para mostrar na tela se quiser
+            context["termo_buscado"] = query
+        else:
+            # 3. Se não houver busca, mostra todos os produtos normalmente
+            context["produto_list"] = Produto.objects.all().order_by("-id")
+            
         return context
     
 class ProdutoView(TemplateView):
@@ -87,11 +111,16 @@ class AddCarrinhoView(View):
 class ContatoView(TemplateView):
     template_name = "contato.html"
 
+@method_decorator(login_required(login_url="/login/"), name="dispatch")
 class CheckoutView(View):
     def get(self, request, *args, **kwargs):
         carrinho_id = request.session.get("carrinho_id")
         carrinho_obj = Carrinho.objects.filter(id=carrinho_id).first() if carrinho_id else None
+        
+        # Opcional: Se o usuário estiver logado, podemos tentar pré-preencher o nome
+        # contexto = {"carrinho": carrinho_obj}
         return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj})
+
 
     def post(self, request, *args, **kwargs):
         carrinho_id = request.session.get("carrinho_id")
@@ -100,36 +129,53 @@ class CheckoutView(View):
         if not carrinho_obj:
             return redirect("lojaapp:home")
 
-        # Pega os dados que o usuário digitou
+        # 1. Captura de todos os NOVOS campos detalhados do HTML
         nome = request.POST.get("ordenado_por")
         email = request.POST.get("email")
         tel = request.POST.get("telefone")
-        endereco = request.POST.get("endereco_envio")
+        
+        # Campos de endereço detalhados
+        end = request.POST.get("endereco")
+        num = request.POST.get("numero")
+        comp = request.POST.get("complemento")
+        bair = request.POST.get("bairro")
+        cid = request.POST.get("cidade")
+        est = request.POST.get("estado")
+        cep = request.POST.get("cep")
 
-        # CRIA O PEDIDO NO BANCO
+        # 2. Criação do pedido com a nova estrutura do Model
         try:
             novo_pedido = Pedido_order.objects.create(
                 carrinho=carrinho_obj,
                 ordenado_por=nome,
-                endereco_envio=endereco,
-                telefone=tel,
                 email=email,
+                telefone=tel,
+                endereco=end,        # Novo campo
+                numero=num,          # Novo campo
+                complemento=comp,    # Novo campo
+                bairro=bair,         # Novo campo
+                cidade=cid,          # Novo campo
+                estado=est,          # Novo campo
+                cep=cep,             # Novo campo
                 subtotal=carrinho_obj.total,
                 disconto=0,
                 total=carrinho_obj.total,
                 pedido_status="Pedido Recebido"
             )
             
-            # Limpa o carrinho da sessão apenas DEPOIS de salvar o pedido
-            del request.session["carrinho_id"]
+            # 3. Limpa a sessão apenas se o pedido foi criado com sucesso
+            if "carrinho_id" in request.session:
+                del request.session["carrinho_id"]
             
-            # Redireciona para a página de sucesso/pagamento
             return render(request, "pagamento.html", {"pedido": novo_pedido})
             
         except Exception as e:
-            print(f"Erro ao salvar pedido: {e}")
-            return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj, "erro": "Erro ao processar pedido."})
-
+            # Mostra o erro exato no terminal para facilitar o conserto
+            print(f"ERRO CRÍTICO AO SALVAR PEDIDO: {e}")
+            return render(request, "finalizar_pedido.html", {
+                "carrinho": carrinho_obj, 
+                "erro": f"Erro técnico: {e}"
+            })
 
 class MeuCarrinhoView(TemplateView):
     template_name = "meu_carrinho.html"
@@ -214,5 +260,57 @@ class CategoriaView(TemplateView):
         context["todascategorias"] = Categoria.objects.all()
         return context
 
+class ClienteRegistroView(View):
+    def get(self, request):
+        return render(request, "registro.html")
 
+    def post(self, request):
+        # 1. Coleta os dados do formulário
+        usuario = request.POST.get("username")
+        email = request.POST.get("email")
+        senha = request.POST.get("password")
+        nome_c = request.POST.get("nome_completo")
+
+        # 2. Verifica se o usuário já existe para não dar erro de integridade
+        if User.objects.filter(username=usuario).exists():
+            return render(request, "registro.html", {"erro": "Este nome de usuário já está em uso."})
+
+        try:
+            # 3. Cria o usuário oficial do Django
+            novo_usuario = User.objects.create_user(usuario, email, senha)
+            
+            # 4. Cria o perfil do Cliente vinculado a esse usuário
+            Cliente.objects.create(user=novo_usuario, nome_completo=nome_c)
+            
+            # 5. Faz o login automático e manda para a home
+            login(request, novo_usuario)
+            return redirect("lojaapp:home")
+            
+        except Exception as e:
+            # Se der qualquer outro erro (ex: banco de dados fora do ar), avisa o usuário
+            print(f"Erro no registro: {e}")
+            return render(request, "registro.html", {"erro": "Ocorreu um erro ao criar sua conta. Tente novamente."})
+
+# 2. View de Login
+class ClienteLoginView(View):
+    def get(self, request):
+        return render(request, "login.html")
+
+    def post(self, request):
+        nome_usuario = request.POST.get("username")
+        senha = request.POST.get("password")
+        
+        usuario = authenticate(username=nome_usuario, password=senha)
+        
+        if usuario is not None:
+            login(request, usuario)
+            return redirect("lojaapp:home")
+        else:
+            return render(request, "login.html", {"erro": "Usuário ou senha inválidos"})
+
+# 3. View de Logout (Sair)
+class ClienteLogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect("lojaapp:home")
     

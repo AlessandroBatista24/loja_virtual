@@ -1,51 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}CARRINHO{% endblock %}
+{% block title %}Confirmar Item{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-sm p-4" style="border-radius: 15px;">
-        <h2 class="text-center fw-bold">Confirmar Item no Carrinho</h2>
-        <hr>
-        <div class="row align-items-center">
-            <!-- Coluna da Imagem (Agora com o campo correto 'image') -->
-            <div class="col-md-4 text-center">
-                {% if produto.image %}
-                    <img src="{{ produto.image.url }}" class="img-fluid rounded shadow" alt="{{ produto.titulo }}" style="max-height: 250px; object-fit: cover;">
-                {% else %}
-                    <div class="bg-light rounded p-5">Sem imagem</div>
-                {% endif %}
-            </div>
+<div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #333; margin-bottom: 20px; text-transform: uppercase;">Confirmar Item no Carrinho</h2>
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
+    
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+        <!-- Lado Esquerdo: Imagem -->
+        <div style="flex: 1; min-width: 250px; text-align: center;">
+            {% if produto.image %}
+                <img src="{{ produto.image.url }}" alt="{{ produto.titulo }}" style="width: 100%; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: cover;">
+            {% else %}
+                <div style="background: #f8f9fa; padding: 50px; border-radius: 10px; color: #888;">Sem imagem</div>
+            {% endif %}
+        </div>
 
-            <!-- Coluna das Informações -->
-            <div class="col-md-8">
-                <h3 class="fw-bold">{{ produto.titulo }}</h3>
-                <p class="text-muted small">Categoria: {{ produto.categoria.titulo }}</p>
+        <!-- Lado Direito: Informações e Formulário -->
+        <div style="flex: 1.5; min-width: 250px;">
+            <h3 style="margin: 0; color: #198754;">{{ produto.titulo }}</h3>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Categoria: {{ produto.categoria.titulo }}</p>
+            
+            <h4 style="font-size: 1.5rem; color: #198754; margin: 20px 0;">Preço Unitário: R$ {{ produto.venda }}</h4>
+            
+            <form method="POST">
+                {% csrf_token %}
                 
-                <!-- Valor (Agora com o campo correto 'venda') -->
-                <h4 class="text-success fw-bold">Preço: R$ {{ produto.venda }}</h4>
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 8px;">Quantidade desejada:</label>
+                    <input type="number" name="quantidade" value="1" min="1" 
+                           style="width: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem;">
+                </div>
                 
-                <form method="POST" class="mt-4">
-                    {% csrf_token %}
+                <div style="display: flex; gap: 15px;">
+                    <!-- Botão Verde (Confirmar) -->
+                    <button type="submit" class="btn-verde" style="border: none; cursor: pointer; flex: 2; padding: 15px; font-size: 1rem;">
+                        Confirmar e Adicionar
+                    </button>
                     
-                    <!-- Campo de Quantidade -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Quantidade desejada:</label>
-                        <input type="number" name="quantidade" value="1" min="1" class="form-control" style="width: 120px; border-radius: 8px;">
-                    </div>
-                    
-                    <div class="d-flex gap-2">
-                        <!-- Botão Verde Padronizado -->
-                        <button type="submit" class="btn btn-success btn-lg fw-bold">
-                            <i class="bi bi-check-circle"></i> Confirmar e Adicionar
-                        </button>
-                        <!-- Botão de Voltar Padronizado -->
-                        <a href="{% url 'lojaapp:home' %}" class="btn btn-outline-primary btn-lg">
-                            Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
+                    <!-- Botão Cinza (Cancelar) -->
+                    <a href="{% url 'lojaapp:home' %}" class="btn-detalhes" style="flex: 1; text-align: center; padding: 15px; font-size: 1rem;">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

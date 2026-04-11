@@ -2,54 +2,46 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}   
-    <div class="container">
-        <h1 class="text-center mt-4">PÁGINA INICIAL</h1>
-        <hr>
-        
-        <div class="row">
-            {% for p in produto_list %}
-            <div class="col-md-3 mt-4">
-                <div class="product-item">
-                    <!-- Link no Título -->
-                    <h4>
-                        <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" style="text-decoration: none; color: black;">
-                            {{ p.titulo }}
-                        </a>
-                    </h4>               
-                    
-                    <!-- Link na Imagem -->
-                    <a href="{% url 'lojaapp:produtodetalhe' p.slug %}">
-                        {% if p.image %}
-                            <img src="{{ p.image.url }}" alt="{{ p.titulo }}" class="img-fluid shadow-sm" style="height: 250px; width: 100%; object-fit: cover; border-radius: 8px;">
-                        {% else %}
-                            <div style="height: 250px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                Sem imagem
-                            </div>
-                        {% endif %}
-                    </a>
-                    
-                    <div class="mt-3">
-                        <p class="mb-1">Preço: <strike>R$ {{ p.preco_mercado }}</strike></p>
-                        <p class="mb-2">
-                            <span class="text-success fw-bold" style="font-size: 1.2rem;">R$ {{ p.venda }}</span>
-                            <br>
-                            <!-- Adicionado: Contador de visualizações -->
-                            <small class="text-muted"><i class="bi bi-eye"></i> {{ p.visualizacao }} visualizações</small>
-                        </p>
-                        
-                        <div class="d-flex gap-2">
-                                <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
-                                <a href="{% url 'lojaapp:addcarrinho' p.id %}" class="btn btn-success btn-sm">Comprar</a>
-                        </div>
-                    </div>
-                    <hr>
-                </div>
-            </div>  
-            {% empty %}
-                <div class="col-12">
-                    <p class="text-muted text-center">Nenhum produto encontrado na loja.</p>
-                </div>
-            {% endfor %}
-        </div>
-    </div> 
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+        <h2 style="margin: 0;">Produtos em Destaque</h2>
+        <span style="background: #198754; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold;">
+            {{ produto_list.count }} Itens
+        </span>
+    </div>
+    
+    <div class="row">
+        {% for p in produto_list %}
+        <div class="card">
+            <!-- Imagem com Link -->
+            <a href="{% url 'lojaapp:produtodetalhe' p.slug %}">
+                {% if p.image %}
+                    <img src="{{ p.image.url }}" alt="{{ p.titulo }}">
+                {% else %}
+                    <div style="height: 180px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">Sem Imagem</div>
+                {% endif %}
+            </a>
+            
+            <h4 style="margin: 15px 0 5px;">
+                <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" style="text-decoration: none; color: #333;">{{ p.titulo }}</a>
+            </h4>
+            
+            <p style="color: #888; font-size: 0.8rem; margin: 0;"><strike>R$ {{ p.preco_mercado }}</strike></p>
+            <h3 style="color: #198754; margin: 5px 0;">R$ {{ p.venda }}</h3>
+            
+            <p style="font-size: 0.8rem; color: #666;">
+                {{ p.categoria.titulo }} | 👀 {{ p.visualizacao }}
+            </p>
+
+            <!-- Botões atualizados com as classes do novo estilo.css -->
+            <div class="acoes">
+                <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes">Detalhes</a>
+                <a href="{% url 'lojaapp:addcarrinho' p.id %}" class="btn-verde">Comprar</a>
+            </div>
+        </div>  
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+                <p style="color: #888;">Nenhum produto encontrado.</p>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

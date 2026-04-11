@@ -2,68 +2,113 @@
 {% block title %}Finalizar Pedido{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'lojaapp:home' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'lojaapp:carrinho' %}">Meu Carrinho</a></li>
-        <li class="breadcrumb-item active">Finalizar Pedido</li>
-      </ol>
-    </nav>
+<div style="margin-top: 20px;">
+    <p style="font-size: 0.9rem; color: #666;">
+        <a href="{% url 'lojaapp:home' %}" style="color: #198754; text-decoration: none;">Home</a> / 
+        <a href="{% url 'lojaapp:carrinho' %}" style="color: #198754; text-decoration: none;">Meu Carrinho</a> / 
+        Finalizar Pedido
+    </p>
 
-    <h2 class="fw-bold mb-4">Checkout</h2>
+    <h2 style="color: #333; text-transform: uppercase; margin: 20px 0;">Checkout</h2>
 
-    <div class="row">
-        <div class="col-md-7">
-            <div class="card shadow-sm p-4 mb-4">
-                <h4 class="fw-bold mb-3">Informações de Envio</h4>
-                <form action="" method="POST">
-                    {% csrf_token %}
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Nome Completo</label>
-                            <input type="text" name="ordenado_por" class="form-control" placeholder="Seu nome aqui" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">E-mail</label>
-                            <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Telefone</label>
-                            <input type="text" name="telefone" class="form-control" placeholder="(00) 00000-0000" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Endereço de Entrega</label>
-                            <textarea name="endereco_envio" class="form-control" rows="3" placeholder="Rua, número, bairro, CEP..." required></textarea>
-                        </div>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+        
+        <div style="flex: 2; min-width: 300px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <h4 style="margin-top: 0; color: #198754;">Informações de Entrega</h4>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    
+                    <!-- Nome Completo (Puxando do cadastro automaticamente) -->
+                    <div style="grid-column: span 3;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nome Completo</label>
+                        <input type="text" name="ordenado_por" value="{{ request.user.cliente.nome_completo }}" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
                     </div>
-                    <hr class="my-4">
-                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
-                        Confirmar e Pagar
-                    </button>
-                </form>
+
+                    <div style="grid-column: span 2;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Endereço (Rua/Av)</label>
+                        <input type="text" name="endereco" placeholder="Ex: Rua das Flores" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Número</label>
+                        <input type="text" name="numero" placeholder="123" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">CEP</label>
+                        <input type="text" name="cep" placeholder="00000-000" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Bairro</label>
+                        <input type="text" name="bairro" placeholder="Centro" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <!-- Complemento (Limpo para o usuário preencher se quiser) -->
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Complemento</label>
+                        <input type="text" name="complemento" placeholder="Apto, Bloco..." 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Cidade</label>
+                        <input type="text" name="cidade" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Estado (UF)</label>
+                        <input type="text" name="estado" maxlength="2" placeholder="MG" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Telefone</label>
+                        <input type="text" name="telefone" placeholder="(00) 00000-0000" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+
+                    <!-- E-mail (Puxando do cadastro automaticamente) -->
+                    <div style="grid-column: span 3;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">E-mail</label>
+                        <input type="email" name="email" value="{{ request.user.email }}" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-verde" style="width: 100%; padding: 15px; margin-top: 30px; border: none; cursor: pointer; font-size: 1.1rem; text-transform: uppercase;">
+                    Finalizar Pedido
+                </button>
+            </form>
+        </div>
+
+        <!-- Lado Direito: Resumo -->
+        <div style="flex: 1; min-width: 250px; background: #fdfdfd; padding: 25px; border-radius: 15px; border: 1px solid #eee; height: fit-content;">
+            <h4 style="margin-top: 0;">Resumo do Pedido</h4>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                {% for item in carrinho.carrinhoproduto_set.all %}
+                <li style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 0.9rem;">
+                    <span>{{ item.produto.titulo }} (x{{ item.quantidade }})</span>
+                    <span style="font-weight: bold;">R$ {{ item.subtotal }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px; padding: 15px; background: #e9f5ee; border-radius: 8px; color: #198754;">
+                <span style="font-weight: bold; font-size: 1.1rem;">Total:</span>
+                <span style="font-weight: bold; font-size: 1.2rem;">R$ {{ carrinho.total }}</span>
             </div>
         </div>
 
-        <div class="col-md-5">
-            <div class="card bg-light border-0 p-3 shadow-sm">
-                <h4 class="fw-bold">Resumo do Pedido</h4>
-                <hr>
-                <ul class="list-group list-group-flush bg-transparent">
-                    {% for item in carrinho.carrinhoproduto_set.all %}
-                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
-                        {{ item.produto.titulo }} (x{{ item.quantidade }})
-                        <span>R$ {{ item.subtotal }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                
-                <div class="d-flex justify-content-between fs-5 fw-bold text-success mt-3 p-2">
-                    <span>Total a pagar:</span>
-                    <span>R$ {{ carrinho.total }}</span>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}

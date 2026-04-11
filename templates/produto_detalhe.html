@@ -3,69 +3,73 @@
 {% block title %}{{ produto.titulo }}{% endblock %}
 
 {% block content %}   
-    <div class="container mt-4">
-        <!-- Navegação (Breadcrumb) -->
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'lojaapp:home' %}">Home</a></li>
-            <li class="breadcrumb-item active">{{ produto.titulo }}</li>
-          </ol>
-        </nav>
+    <div style="margin-top: 20px;">
+        <!-- Navegação Simples -->
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 30px;">
+            <a href="{% url 'lojaapp:home' %}" style="color: #198754; text-decoration: none;">Home</a> / 
+            {{ produto.titulo }}
+        </p>
 
-        <div class="row">
-            <!-- Coluna da Imagem -->
-            <div class="col-md-6">
+        <div style="display: flex; gap: 40px; flex-wrap: wrap; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            
+            <!-- Coluna da Imagem (Lado Esquerdo) -->
+            <div style="flex: 1; min-width: 300px;">
                 {% if produto.image %}
-                    <img src="{{ produto.image.url }}" alt="{{ produto.titulo }}" class="img-fluid rounded shadow">
+                    <img src="{{ produto.image.url }}" alt="{{ produto.titulo }}" style="width: 100%; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); object-fit: cover;">
                 {% else %}
-                    <div class="alert alert-secondary text-center p-5">Nenhuma imagem disponível.</div>
+                    <div style="background: #f8f9fa; padding: 100px; text-align: center; border-radius: 10px; color: #999;">Sem imagem disponível</div>
                 {% endif %}
             </div>
 
-            <!-- Coluna das Informações -->
-            <div class="col-md-6">
-                <h2 class="fw-bold">{{ produto.titulo }}</h2>
+            <!-- Coluna das Informações (Lado Direito) -->
+            <div style="flex: 1.2; min-width: 300px;">
+                <h1 style="margin: 0; color: #333; font-size: 2rem;">{{ produto.titulo }}</h1>
                 
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-secondary">Categoria: {{ produto.categoria.titulo }}</span>
-                    <span class="text-muted">
-                        <i class="bi bi-eye"></i> {{ produto.visualizacao }} visualizações
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+                    <span style="background: #6c757d; color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;">
+                        {{ produto.categoria.titulo }}
+                    </span>
+                    <span style="color: #888; font-size: 0.9rem;">
+                        <span style="color: #198754;">●</span> {{ produto.visualizacao }} visualizações
                     </span>
                 </div>
-                <hr>
+                
+                <hr style="border: 0; border-top: 1px solid #eee;">
 
                 <!-- Preços -->
-                <h4 class="text-success fw-bold">R$ {{ produto.venda }}</h4>
-                <p class="text-muted"><strike>De: R$ {{ produto.preco_mercado }}</strike></p>
+                <div style="margin: 20px 0;">
+                    <h2 style="color: #198754; margin: 0; font-size: 2.2rem;">R$ {{ produto.venda }}</h2>
+                    <p style="color: #888; text-decoration: line-through; margin: 5px 0;">De: R$ {{ produto.preco_mercado }}</p>
+                </div>
 
                 <!-- Descrição -->
-                <div class="my-4">
-                    <h5>Descrição:</h5>
-                    <p class="text-justify">{{ produto.discricao }}</p>
+                <div style="margin: 30px 0;">
+                    <h5 style="color: #333; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 10px;">Descrição:</h5>
+                    <p style="color: #555; line-height: 1.6; text-align: justify;">{{ produto.discricao }}</p>
                 </div>
 
                 <!-- Detalhes Extras -->
-                {% if produto.garantia %}
-                    <p><strong>🛡️ Garantia:</strong> {{ produto.garantia }}</p>
-                {% endif %}
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 30px;">
+                    {% if produto.garantia %}
+                        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>🛡️ Garantia:</strong> {{ produto.garantia }}</p>
+                    {% endif %}
 
-                {% if produto.return_devolucao %}
-                    <p><strong>🔄 Devolução:</strong> {{ produto.return_devolucao }}</p>
-                {% endif %}
+                    {% if produto.return_devolucao %}
+                        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>🔄 Devolução:</strong> {{ produto.return_devolucao }}</p>
+                    {% endif %}
+                </div>
 
-          <!-- Botões de Ação -->
-                    <div class="d-grid gap-2 mt-4">
-                        <!-- Link atualizado para levar ao carrinho passando o ID do produto -->
-                        <a href="{% url 'lojaapp:addcarrinho' produto.id %}" class="btn btn-success btn-lg fw-bold">
-                            <i class="bi bi-cart-plus"></i> Comprar Agora
-                        </a>
-                        
-                        <a href="{% url 'lojaapp:home' %}" class="btn btn-outline-primary">
-                            Voltar para a Loja
-                        </a>
-                    </div>
+                <!-- Botões de Ação -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="{% url 'lojaapp:addcarrinho' produto.id %}" class="btn-verde" style="text-align: center; padding: 18px; font-size: 1.2rem; text-transform: uppercase;">
+                        Comprar Agora
+                    </a>
+                    
+                    <a href="{% url 'lojaapp:home' %}" class="btn-detalhes" style="text-align: center; padding: 12px; text-transform: uppercase;">
+                        Voltar para a Loja
+                    </a>
+                </div>
 
-           </div>
             </div>
         </div>        
     </div>        

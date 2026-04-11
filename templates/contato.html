@@ -1,8 +1,43 @@
 {% extends "base.html" %}
-{% block title%}Contato{% endblock %}
+{% block title %}Contato{% endblock %}
+
 {% block content %}
-    <h1>Bem-vindo à pagina de contato!</h1>
-    <p>Entre em contato para exclarecermos qualquer duvida!</p>
-    <h2>Seja bem vindo.</h2>
-    <p>imput dos campos de contato!</p>
+<div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #198754; text-transform: uppercase; margin-bottom: 10px;">Contato</h2>
+    <p style="text-align: center; color: #666; margin-bottom: 30px;">Entre em contato para esclarecermos qualquer dúvida!</p>
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #333;">Nome Completo:</label>
+            <input type="text" name="nome" placeholder="Digite seu nome" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #333;">E-mail:</label>
+            <input type="email" name="email" placeholder="seuemail@exemplo.com" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #333;">Mensagem:</label>
+            <textarea name="mensagem" rows="5" placeholder="Como podemos ajudar?" 
+                      style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <!-- Botão Verde Padronizado -->
+            <button type="submit" class="btn-verde" style="border: none; cursor: pointer; flex: 2; padding: 15px; font-size: 1rem;">
+                Enviar Mensagem
+            </button>
+            
+            <!-- Botão Cinza para Voltar -->
+            <a href="{% url 'lojaapp:home' %}" class="btn-detalhes" style="flex: 1; text-align: center; padding: 15px; font-size: 1rem;">
+                Voltar
+            </a>
+        </div>
+    </form>
+</div>
 {% endblock %}

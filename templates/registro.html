@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Criar Conta{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 50px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #198754; text-transform: uppercase; margin-bottom: 30px;">Criar Nova Conta</h2>
+    
+    <!-- Exibição de Mensagens de Erro (Reposicionado para o topo) -->
+    {% if erro %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; text-align: center; font-weight: bold;">
+            ⚠️ {{ erro }}
+        </div>
+    {% endif %}
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px;">Nome de Usuário (Login):</label>
+            <input type="text" name="username" required placeholder="Ex: alessandro123" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px;">Nome Completo:</label>
+            <input type="text" name="nome_completo" required placeholder="Seu nome completo" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px;">E-mail:</label>
+            <input type="email" name="email" required placeholder="seuemail@exemplo.com" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 8px;">Senha:</label>
+            <input type="password" name="password" required placeholder="Crie uma senha forte" 
+                   style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        </div>
+
+        <button type="submit" class="btn-verde" style="width: 100%; padding: 15px; border: none; cursor: pointer; font-size: 1rem; text-transform: uppercase;">
+            Finalizar Cadastro
+        </button>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: #666;">
+            Já possui uma conta? <a href="{% url 'lojaapp:clientelogin' %}" style="color: #198754; font-weight: bold; text-decoration: none;">Entre aqui</a>
+        </p>
+    </form>
+</div>
+{% endblock %}

@@ -1,9 +1,9 @@
 from django.urls import path
-from django.views.generic import TemplateView # Importe o TemplateView direto do Django
 from .views import (
     HomeView, ContatoView, SobreView, 
     CategoriaView, ProdutoDetalheView, AddCarrinhoView, 
-    MeuCarrinhoView, ManipularCarrinhoView, CheckoutView
+    MeuCarrinhoView, ManipularCarrinhoView, CheckoutView,
+    ClienteRegistroView, ClienteLoginView, ClienteLogoutView # Importe as novas views
 )
 
 app_name = "lojaapp"
@@ -18,4 +18,9 @@ urlpatterns = [
     path("carrinho/", MeuCarrinhoView.as_view(), name="carrinho"),
     path("manipular-carrinho/<int:pro_id>/", ManipularCarrinhoView.as_view(), name="manipularcarrinho"),
     path("finalizar-pedido/", CheckoutView.as_view(), name="finalizarpedido"),
+    
+    # NOVAS ROTAS DE USUÁRIO
+    path("registro/", ClienteRegistroView.as_view(), name="clienteregistro"),
+    path("login/", ClienteLoginView.as_view(), name="clientelogin"),
+    path("logout/", ClienteLogoutView.as_view(), name="clientelogout"),
 ]

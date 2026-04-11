@@ -68,16 +68,28 @@ PEDIDO_STATUS =(
 )
 
 class Pedido_order(models.Model):
-    carrinho = models.OneToOneField(Carrinho,on_delete=models.CASCADE)
+    carrinho = models.OneToOneField(Carrinho, on_delete=models.CASCADE)
     ordenado_por = models.CharField(max_length=200)
-    endereco_envio = models.CharField(max_length=200)
-    telefone = models.CharField(max_length=10)
-    email = models.EmailField(null=True,blank=True)
+    
+    # Novos campos detalhados
+    endereco = models.CharField(max_length=200)
+    numero = models.CharField(max_length=10)
+    complemento = models.CharField(max_length=100, null=True, blank=True)
+    bairro = models.CharField(max_length=100)
+    cidade = models.CharField(max_length=100)
+    estado = models.CharField(max_length=2) # Ex: MG, SP
+    cep = models.CharField(max_length=10)
+    
+    telefone = models.CharField(max_length=15)
+    email = models.EmailField(null=True, blank=True)
     subtotal = models.PositiveIntegerField()
     disconto = models.PositiveIntegerField()
     total = models.PositiveIntegerField()
-    pedido_status = models.CharField(max_length=50,choices=PEDIDO_STATUS)
+    pedido_status = models.CharField(max_length=50, choices=PEDIDO_STATUS)
     criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Pedido: {self.id} - {self.ordenado_por}"
 
     def __str__(self):
         return "Pedido_order:" + str(self.id)

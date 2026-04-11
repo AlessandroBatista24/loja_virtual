@@ -2,33 +2,41 @@
 {% block title %}Pagamento{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <div class="card shadow-lg p-5" style="border-radius: 20px;">
-                <div class="mb-4">
-                    <i class="bi bi-check2-circle text-success" style="font-size: 4rem;"></i>
-                </div>
-                <h2 class="fw-bold">Pedido Recebido com Sucesso!</h2>
-                <p class="text-muted">Obrigado, <strong>{{ pedido.ordenado_por }}</strong>. Seu pedido nº <strong>{{ pedido.id }}</strong> foi registrado.</p>
-                <hr>
-                
-                <div class="text-start mb-4">
-                    <h5 class="fw-bold">Resumo do Envio:</h5>
-                    <p class="mb-1"><strong>Endereço:</strong> {{ pedido.endereco_envio }}</p>
-                    <p class="mb-1"><strong>Telefone:</strong> {{ pedido.telefone }}</p>
-                    <p><strong>Total a Pagar:</strong> <span class="text-success fw-bold">R$ {{ pedido.total }}</span></p>
-                </div>
-
-                <div class="alert alert-info">
-                    <strong>Próximo Passo:</strong> Integre aqui o seu meio de pagamento (Pix, Cartão ou Boleto).
-                </div>
-
-                <a href="{% url 'lojaapp:home' %}" class="btn btn-primary btn-lg mt-3">
-                    Voltar para a Loja
-                </a>
-            </div>
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 20px;">
+    <div style="max-width: 700px; width: 100%; background: white; padding: 50px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+        
+        <!-- Ícone de Sucesso Visual -->
+        <div style="color: #198754; font-size: 5rem; margin-bottom: 20px;">
+            ✔
         </div>
+
+        <h2 style="color: #333; font-weight: bold; text-transform: uppercase;">Pedido Recebido com Sucesso!</h2>
+        <p style="color: #666; font-size: 1.1rem; margin-bottom: 30px;">
+            Obrigado, <strong>{{ pedido.ordenado_por }}</strong>. <br>
+            Seu pedido nº <strong style="color: #198754;">{{ pedido.id }}</strong> foi registrado.
+        </p>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
+        
+        <div style="text-align: left; background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <h5 style="margin-top: 0; color: #198754; text-transform: uppercase; font-size: 0.9rem;">Resumo do Envio:</h5>
+            <p style="margin: 5px 0;"><strong>Endereço:</strong> {{ pedido.endereco_envio }}</p>
+            <p style="margin: 5px 0;"><strong>Telefone:</strong> {{ pedido.telefone }}</p>
+            <p style="margin: 15px 0 0 0; font-size: 1.2rem;">
+                <strong>Total a Pagar:</strong> 
+                <span style="color: #198754; font-weight: bold;">R$ {{ pedido.total }}</span>
+            </p>
+        </div>
+
+        <!-- Alerta de Próximo Passo -->
+        <div style="background: #e7f3ff; color: #0c5460; padding: 15px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 30px; border-left: 5px solid #007bff;">
+            <strong>PRÓXIMO PASSO:</strong> Integre aqui o seu meio de pagamento (Pix, Cartão ou Boleto).
+        </div>
+
+        <!-- Botão Padronizado para voltar -->
+        <a href="{% url 'lojaapp:home' %}" class="btn-verde" style="display: block; padding: 15px; text-decoration: none; font-size: 1.1rem; text-transform: uppercase;">
+            Voltar para a Loja
+        </a>
     </div>
 </div>
 {% endblock %}

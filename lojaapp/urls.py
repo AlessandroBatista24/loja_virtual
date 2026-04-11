@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    HomeView, ContatoView, SobreView, 
+    HomeView, ContatoView, SobreView, MeusPedidosView,
     CategoriaView, ProdutoDetalheView, AddCarrinhoView, 
     MeuCarrinhoView, ManipularCarrinhoView, CheckoutView,
     ClienteRegistroView, ClienteLoginView, ClienteLogoutView # Importe as novas views
@@ -23,4 +23,6 @@ urlpatterns = [
     path("registro/", ClienteRegistroView.as_view(), name="clienteregistro"),
     path("login/", ClienteLoginView.as_view(), name="clientelogin"),
     path("logout/", ClienteLogoutView.as_view(), name="clientelogout"),
+    path("meus-pedidos/", MeusPedidosView.as_view(), name="meuspedidos"),
+
 ]

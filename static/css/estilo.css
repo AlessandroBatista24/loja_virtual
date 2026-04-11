@@ -70,3 +70,34 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: 
     background: #146c43; /* Verde Escuro do Header */
     color: white; 
 }
+
+/* --- Estilos de Filtros de Categoria na Home --- */
+
+/* Botão padrão (cinza claro) */
+.filtro-categoria {
+    background-color: #e9ecef;
+    color: #333;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+/* Efeito Hover: Agora ele fica verde igual aos botões de compra */
+.filtro-categoria:hover {
+    background-color: #146c43 !important; /* Verde Escuro padrão */
+    color: white !important;              /* Letras ficam brancas */
+    transform: translateY(-3px);          /* Sobe um pouquinho mais */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Botão Ativo (Já está verde) */
+.filtro-categoria-active {
+    background-color: #198754;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.filtro-categoria-active:hover {
+    background-color: #0a3622 !important; /* Um verde ainda mais profundo */
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}

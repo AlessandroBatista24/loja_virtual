@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -103,6 +104,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+JAZZMIN_SETTINGS = {
+    "site_title": "Minha Loja Admin",
+    "site_header": "Administração da Loja",
+    "site_brand": "Painel de Gestão",
+    "welcome_sign": "Bem-vindo ao Gerenciamento da Loja",
+    "copyright": "Minha Loja Ltda",
+    "search_model": ["auth.User", "lojaapp.Produto"],
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Ver Loja", "url": "/", "new_window": True},
+    ],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_variant": "navbar-success", # Deixa o topo verde
+    "theme": "flatly", # Um tema limpo e moderno
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

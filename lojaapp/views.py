@@ -4,6 +4,7 @@ from django.db.models import Avg
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # IMPORTANTE: Adicione o 'Cliente' na lista abaixo
 from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order, Cliente
@@ -18,24 +19,24 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # 1. Pega o que o usuário digitou no campo 'q' do seu novo cabeçalho
+        # 1. Pegamos todas as categorias para a barra de filtros
+        context["categorias"] = Categoria.objects.all().order_by("titulo")
+        
+        # 2. Pegamos os termos de filtro (busca ou categoria)
         query = self.request.GET.get('q')
+        cat_slug = self.request.GET.get('categoria') # Novo filtro
         
         if query:
-            # 2. Filtra produtos onde o título contém o que foi digitado
-            # O 'icontains' faz a busca ser inteligente (ignora maiúsculas/minúsculas)
-            context["produto_list"] = Produto.objects.filter(
-                titulo__icontains=query
-            ).order_by("-id")
-            
-            # Adicionamos o termo de busca ao contexto para mostrar na tela se quiser
-            context["termo_buscado"] = query
+            context["produto_list"] = Produto.objects.filter(titulo__icontains=query).order_by("-id")
+        elif cat_slug:
+            # Filtra produtos pela slug da categoria clicada
+            context["produto_list"] = Produto.objects.filter(categoria__slug=cat_slug).order_by("-id")
+            context["categoria_selecionada"] = Categoria.objects.get(slug=cat_slug)
         else:
-            # 3. Se não houver busca, mostra todos os produtos normalmente
             context["produto_list"] = Produto.objects.all().order_by("-id")
             
         return context
-    
+
 class ProdutoView(TemplateView):
     template_name = "produto.html"
     def get_context_data(self, **kwargs):
@@ -313,4 +314,20 @@ class ClienteLogoutView(View):
     def get(self, request):
         logout(request)
         return redirect("lojaapp:home")
-    
+   
+class MeusPedidosView(LoginRequiredMixin, TemplateView):
+    template_name = "meus_pedidos.html"
+    login_url = "/login/"
+
+    def get_context_data(self, **kwargs):
+        # A assinatura deve ser EXATAMENTE (self, **kwargs)
+        context = super().get_context_data(**kwargs)
+        
+        try:
+            # O request já está disponível em self.request
+            cliente = Cliente.objects.get(user=self.request.user)
+            context["pedidos"] = Pedido_order.objects.filter(carrinho__cliente=cliente).order_by("-id")
+        except Exception as e:
+            context["pedidos"] = []
+            
+        return context

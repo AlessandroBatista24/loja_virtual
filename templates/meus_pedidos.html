@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Meus Pedidos{% endblock %}
+
+{% block content %}
+<div style="margin-top: 20px;">
+    <h2 style="color: #333; text-transform: uppercase; margin-bottom: 25px;">📦 Histórico de Pedidos</h2>
+    
+    <div style="background: white; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead style="background: #f8f9fa; border-bottom: 2px solid #eee;">
+                <tr>
+                    <th style="padding: 15px;">Pedido</th>
+                    <th style="padding: 15px;">Data</th>
+                    <th style="padding: 15px;">Valor Total</th>
+                    <th style="padding: 15px; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pedidos %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px; font-weight: bold;">#{{ p.id }}</td>
+                    <td style="padding: 15px;">{{ p.criado_em|date:"d/m/Y H:i" }}</td>
+                    <td style="padding: 15px; font-weight: bold; color: #198754;">R$ {{ p.total }}</td>
+                    <td style="padding: 15px; text-align: center;">
+                        <span style="background: #e9f5ee; color: #198754; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+                            {{ p.pedido_status }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 50px; text-align: center; color: #999;">
+                        Você ainda não realizou nenhuma compra.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <a href="{% url 'lojaapp:home' %}" class="btn-detalhes">Voltar para a Loja</a>
+    </div>
+</div>
+{% endblock %}

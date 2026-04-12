@@ -4,7 +4,14 @@ from django.contrib.auth.models import User
 class Cliente(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nome_completo = models.CharField(max_length=200)
-    endereco_completo = models.CharField(max_length=200,null=True,blank=True)
+    # --- NOVOS CAMPOS DE ENDEREÇO PADRÃO ---
+    endereco = models.CharField(max_length=200, null=True, blank=True)
+    numero = models.CharField(max_length=10, null=True, blank=True)
+    bairro = models.CharField(max_length=100, null=True, blank=True)
+    cidade = models.CharField(max_length=100, null=True, blank=True)
+    estado = models.CharField(max_length=2, null=True, blank=True)
+    cep = models.CharField(max_length=10, null=True, blank=True)
+    telefone = models.CharField(max_length=15, null=True, blank=True)
     data_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -20,35 +27,45 @@ class Categoria(models.Model):
 class Produto(models.Model):
     titulo = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    categoria = models.ForeignKey(Categoria,on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="produtos")
     preco_mercado = models.PositiveIntegerField()
     venda = models.PositiveIntegerField()
     discricao = models.TextField()
-    garantia = models.CharField(max_length=300,null=True,blank=True)
-    return_devolucao = models.CharField(max_length=300,null=True,blank=True)
+    garantia = models.CharField(max_length=300, null=True, blank=True)
+    return_devolucao = models.CharField(max_length=300, null=True, blank=True)
     visualizacao = models.PositiveIntegerField(default=0)
+    estoque = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.titulo
-    
-class Carrinho(models.Model):
-    cliente = models.ForeignKey(Cliente,on_delete=models.SET_NULL,null=True,blank=True)
-    total = models.PositiveIntegerField(default=0)
-    criado_em = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return "Carrinho:" + str(self.id)
 
 class Avaliacao(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="avaliacoes")
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    nota = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)]) # Notas de 1 a 5
+    nota = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)]) 
     comentario = models.TextField()
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.cliente.nome_completo} - {self.produto.titulo} ({self.nota})"
+
+class Cupom(models.Model):
+    codigo = models.CharField(max_length=20, unique=True)
+    valor_desconto = models.PositiveIntegerField(help_text="Valor fixo de desconto em R$")
+    ativo = models.BooleanField(default=True)
+    minimo_pedido = models.PositiveIntegerField(default=0, help_text="Valor mínimo do carrinho para usar")
+
+    def __str__(self):
+        return f"{self.codigo} (R$ {self.valor_desconto})"
+    
+class Carrinho(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True)
+    total = models.PositiveIntegerField(default=0)
+    criado_em = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return "Carrinho:" + str(self.id)
        
 class CarrinhoProduto(models.Model):
     carrinho = models.ForeignKey(Carrinho, on_delete=models.CASCADE)
@@ -70,16 +87,13 @@ PEDIDO_STATUS =(
 class Pedido_order(models.Model):
     carrinho = models.OneToOneField(Carrinho, on_delete=models.CASCADE)
     ordenado_por = models.CharField(max_length=200)
-    
-    # Novos campos detalhados
     endereco = models.CharField(max_length=200)
     numero = models.CharField(max_length=10)
     complemento = models.CharField(max_length=100, null=True, blank=True)
     bairro = models.CharField(max_length=100)
     cidade = models.CharField(max_length=100)
-    estado = models.CharField(max_length=2) # Ex: MG, SP
+    estado = models.CharField(max_length=2) 
     cep = models.CharField(max_length=10)
-    
     telefone = models.CharField(max_length=15)
     email = models.EmailField(null=True, blank=True)
     subtotal = models.PositiveIntegerField()
@@ -90,6 +104,3 @@ class Pedido_order(models.Model):
 
     def __str__(self):
         return f"Pedido: {self.id} - {self.ordenado_por}"
-
-    def __str__(self):
-        return "Pedido_order:" + str(self.id)

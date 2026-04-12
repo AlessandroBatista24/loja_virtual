@@ -6,7 +6,6 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: 
 .topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .logo { font-size: 24px; font-weight: bold; text-transform: uppercase; }
 
-/* Estilo dos Links */
 .nav-links a { 
     color: white; 
     text-decoration: none; 
@@ -17,41 +16,72 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: 
     transition: 0.3s; 
 }
 
-/* Efeito Hover: Escurece apenas o texto dos links (Home, Categorias, etc) */
-.nav-links a:hover { 
-    color: #0a3622; /* Verde bem escuro para dar contraste */
+/* Hover Global: O verde escuro que você quer */
+.nav-links a:hover, .btn-detalhes:hover, .btn-verde:hover { 
+    color: #ffffff !important;
+    background-color: #0a3622 !important; 
 }
 
-/* Botão do Carrinho - Estilo Padrão (Branco) */
+/* Botão do Carrinho */
 .btn-carrinho { 
     background: white; 
     color: #198754 !important; 
     padding: 8px 15px; 
     border-radius: 20px; 
-    transition: all 0.3s ease; /* 'all' garante que fundo e texto mudem suavemente */
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.btn-carrinho:hover { background: #0a3622 !important; color: white !important; }
+
+/* CAMPO DE BUSCA (REAJUSTADO) */
+.busca-container { 
+    display: flex; 
+    justify-content: center; 
+    margin-top: 10px; 
+    /* Move o conjunto todo para a esquerda */
+    transform: translateX(-100px); 
 }
 
-/* Efeito Hover: Muda o botão inteiro */
-.btn-carrinho:hover { 
-    background: #0a3622 !important; /* Fundo fica Verde Bem Escuro */
-    color: white !important;        /* Letras ficam Brancas */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Adiciona uma sombra para dar profundidade */
+.busca-form { 
+    display: flex; 
+    width: 100%; 
+    max-width: 600px; 
+    background: white; 
+    border-radius: 25px; 
+    overflow: hidden; 
 }
 
-/* Campo de Busca */
-.busca-container { display: flex; justify-content: center; }
-.busca-form { display: flex; width: 100%; max-width: 500px; background: white; border-radius: 25px; overflow: hidden; }
-.busca-form input { border: none; padding: 12px 20px; width: 80%; outline: none; }
-.busca-form button { border: none; background: #ffc107; width: 20%; font-weight: bold; cursor: pointer; transition: 0.3s; }
-.busca-form button:hover { background: #e0a800; }
+.busca-form input { 
+    border: none; 
+    padding: 12px 20px; 
+    width: 85%; /* Aumentamos o input para compensar a diminuição do botão */
+    outline: none; 
+    font-size: 16px; 
+}
 
-/* Grid de Produtos */
+.busca-form button { 
+    border: none; 
+    background: #ffc107; 
+    width: 15%; /* Botão um pouco menor que os 20% de antes */
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    color: #333; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.busca-form button:hover { 
+    background: #e0a800; 
+}
+/* Vitrine e Cards */
 .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 .row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
 .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
 .card img { max-width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
 
-/* Botões Padronizados */
+/* BOTÕES ORIGINAIS (MENORES) */
 .acoes { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
 .btn-detalhes, .btn-verde { 
     display: inline-block; 
@@ -62,42 +92,96 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: 
     font-size: 13px; 
     font-weight: bold; 
     transition: 0.3s; 
+    border: none;
 }
-.btn-detalhes { background: #495057; } /* Cinza Grafite */
-.btn-verde { background: #28a745; }   /* Verde */
+.btn-detalhes { background: #495057; } 
+.btn-verde { background: #198754; }
 
-.btn-detalhes:hover, .btn-verde:hover { 
-    background: #146c43; /* Verde Escuro do Header */
-    color: white; 
-}
+/* --- Dashboard Admin Sidebar --- */
+.sidebar { width: 250px; background: #0a3622; color: white; position: fixed; height: 100vh; padding: 20px; z-index: 1000; }
+.sidebar-menu a { color: #fff; text-decoration: none; display: block; padding: 12px; border-radius: 8px; margin-bottom: 5px; }
+.sidebar-menu a:hover, .sidebar-menu a.active { background: #198754; }
+.main-content { margin-left: 250px; padding: 40px; min-height: 100vh; }
+.admin-card-stats { background: white; padding: 20px; border-radius: 12px; border-left: 5px solid #198754; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
 
-/* --- Estilos de Filtros de Categoria na Home --- */
-
-/* Botão padrão (cinza claro) */
-.filtro-categoria {
-    background-color: #e9ecef;
-    color: #333;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-}
-
-/* Efeito Hover: Agora ele fica verde igual aos botões de compra */
-.filtro-categoria:hover {
-    background-color: #146c43 !important; /* Verde Escuro padrão */
-    color: white !important;              /* Letras ficam brancas */
-    transform: translateY(-3px);          /* Sobe um pouquinho mais */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+/* Container do Dropdown */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 15px;
 }
 
-/* Botão Ativo (Já está verde) */
-.filtro-categoria-active {
-    background-color: #198754;
+/* Estilo do botão "Área do Cliente" */
+.btn-area-cliente {
     color: white;
-    transition: all 0.3s ease;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: 0.3s;
 }
 
-.filtro-categoria-active:hover {
-    background-color: #0a3622 !important; /* Um verde ainda mais profundo */
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+/* Container do Dropdown */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+/* Botão "Área do Cliente" */
+.btn-area-cliente {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1); /* Efeito suave sobre o verde */
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+/* Menu Dropdown - AGORA NA MESMA COR DO CONTAINER (#198754) */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #198754; /* Verde Principal idêntico ao Header */
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1001;
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    border-radius: 0 0 8px 8px; /* Arredondado apenas embaixo para "colar" no botão */
+    top: 100%;
+    left: 0;
+}
+
+/* Links dentro do Dropdown */
+.dropdown-menu li a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+/* Efeito Hover nas opções - AGORA COM O VERDE ESCURO (#0a3622) */
+.dropdown-menu li a:hover {
+    background-color: #0a3622; /* Verde Escuro para destacar a seleção */
+    color: white !important;
+}
+
+/* Mostra o menu ao passar o mouse */
+.dropdown-container:hover .dropdown-menu {
+    display: block;
+}
+
+/* Divisor sutil */
+.divisor {
+    height: 1px;
+    background-color: rgba(255,255,255,0.2);
+    margin: 5px 10px;
 }

@@ -3,7 +3,8 @@ from .views import (
     HomeView, ContatoView, SobreView, MeusPedidosView,
     CategoriaView, ProdutoDetalheView, AddCarrinhoView, 
     MeuCarrinhoView, ManipularCarrinhoView, CheckoutView,
-    ClienteRegistroView, ClienteLoginView, ClienteLogoutView # Importe as novas views
+    ClienteRegistroView, ClienteLoginView, ClienteLogoutView, AdminDashboardView,
+    AdminProdutoCreateView, MeusDadosView, MinhasAvaliacoesView, AvaliarProdutoView
 )
 
 app_name = "lojaapp"
@@ -24,5 +25,12 @@ urlpatterns = [
     path("login/", ClienteLoginView.as_view(), name="clientelogin"),
     path("logout/", ClienteLogoutView.as_view(), name="clientelogout"),
     path("meus-pedidos/", MeusPedidosView.as_view(), name="meuspedidos"),
+    path("admin-dashboard/", AdminDashboardView.as_view(), name="admindashboard"),
+    path("admin-produto/novo/", AdminProdutoCreateView.as_view(), name="adminprodutocreate"),
+    path("meus-dados/", MeusDadosView.as_view(), name="meusdados"),
+    path("minhas-avaliacoes/", MinhasAvaliacoesView.as_view(), name="minhasavaliacoes"),
+    path("avaliar-produto/<int:pro_id>/", AvaliarProdutoView.as_view(), name="avaliarproduto"),
+
+
 
 ]

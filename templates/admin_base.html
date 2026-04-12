@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Administrativo</title>
+    <!-- Aqui chamamos o seu CSS que já tem todas as cores certas -->
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h3 style="color: white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">LOJA ADMIN</h3>
+        <ul class="sidebar-menu">
+            <li><a href="{% url 'lojaapp:admindashboard' %}" class="active">📊 Dashboard</a></li>
+            <li><a href="{% url 'lojaapp:todos-produtos' %}">📦 Ver Produtos</a></li>
+            <li><a href="{% url 'lojaapp:adminprodutocreate' %}">➕ Novo Produto</a></li>
+            <li><a href="{% url 'lojaapp:meuspedidos' %}">🧾 Pedidos</a></li>
+            <li style="margin-top: 50px;"><a href="{% url 'lojaapp:home' %}" style="background: rgba(255,255,255,0.1);">🏠 Voltar ao Site</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        {% block admin_content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

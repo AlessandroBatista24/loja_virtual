@@ -1,15 +1,15 @@
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, CreateView, ListView, UpdateView
 from django.shortcuts import render, redirect
 from django.db.models import Avg 
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order, Cliente, Cupom
 
-# IMPORTANTE: Adicione o 'Cliente' na lista abaixo
-from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order, Cliente
-
-# Define o User para ser usado na ClienteRegistroView
 User = get_user_model()
 
 
@@ -18,20 +18,21 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # 1. Pegamos todas as categorias para a barra de filtros
         context["categorias"] = Categoria.objects.all().order_by("titulo")
         
-        # 2. Pegamos os termos de filtro (busca ou categoria)
         query = self.request.GET.get('q')
-        cat_slug = self.request.GET.get('categoria') # Novo filtro
-        
+        cat_slug = self.request.GET.get('categoria')
+
+        # 1. Se houver busca por texto, filtra APENAS por texto
         if query:
             context["produto_list"] = Produto.objects.filter(titulo__icontains=query).order_by("-id")
+        
+        # 2. Se não houver texto, mas houver categoria, filtra por categoria
         elif cat_slug:
-            # Filtra produtos pela slug da categoria clicada
             context["produto_list"] = Produto.objects.filter(categoria__slug=cat_slug).order_by("-id")
             context["categoria_selecionada"] = Categoria.objects.get(slug=cat_slug)
+        
+        # 3. Se não houver nada, mostra tudo
         else:
             context["produto_list"] = Produto.objects.all().order_by("-id")
             
@@ -57,40 +58,43 @@ class ProdutoDetalheView(TemplateView):
         produto_obj.save()       
         
         context["produto"] = produto_obj
-        # Busca todas as avaliações deste produto
+        
+        # BUSCA AS AVALIAÇÕES PARA EXIBIR NA TELA
         context["avaliacoes"] = Avaliacao.objects.filter(produto=produto_obj).order_by("-criado_em")
-        # Calcula a média (opcional)
-        context["media_notas"] = Avaliacao.objects.filter(produto=produto_obj).aggregate(Avg('nota'))['nota__avg']
         
         return context
 
-    
 class AddCarrinhoView(View):
-    # O método GET apenas mostra a página de confirmação
     def get(self, request, *args, **kwargs):
         pro_id = self.kwargs['pro_id']
         produto_obj = Produto.objects.get(id=pro_id)
         return render(request, "add_carrinho.html", {"produto": produto_obj})
 
-    # O método POST salva os dados no Banco de Dados
     def post(self, request, *args, **kwargs):
         pro_id = self.kwargs['pro_id']
         produto_obj = Produto.objects.get(id=pro_id)
         quantidade = int(request.POST.get("quantidade", 1))
 
-        # 1. Busca ou cria o carrinho na sessão do navegador
-        carrinho_id = request.session.get("carrinho_id", None)
+        # 1. Validação de estoque inicial
+        if produto_obj.estoque < quantidade:
+            return render(request, "add_carrinho.html", {
+                "produto": produto_obj, 
+                "erro": f"❌ Ops! Temos apenas {produto_obj.estoque} unidades em estoque."
+            })
+
+        # 2. Lógica de Carrinho Blindada (Busca ou Cria)
+        carrinho_id = request.session.get("carrinho_id")
+        carrinho_obj = None
+
         if carrinho_id:
-            try:
-                carrinho_obj = Carrinho.objects.get(id=carrinho_id)
-            except Carrinho.DoesNotExist:
-                carrinho_obj = Carrinho.objects.create(total=0)
-                request.session["carrinho_id"] = carrinho_obj.id
-        else:
+            carrinho_obj = Carrinho.objects.filter(id=carrinho_id).first()
+        
+        if not carrinho_obj:
             carrinho_obj = Carrinho.objects.create(total=0)
             request.session["carrinho_id"] = carrinho_obj.id
+            request.session.save() # Força a gravação imediata na sessão do navegador
 
-        # 2. Adiciona o produto ou aumenta a quantidade se já existir
+        # 3. Adiciona ou atualiza o item no carrinho
         item, created = CarrinhoProduto.objects.get_or_create(
             carrinho=carrinho_obj,
             produto=produto_obj,
@@ -98,16 +102,23 @@ class AddCarrinhoView(View):
         )
 
         if not created:
+            # Validação extra: Verifica se a soma (já no carrinho + nova qtd) supera o estoque
+            if produto_obj.estoque < (item.quantidade + quantidade):
+                return render(request, "add_carrinho.html", {
+                    "produto": produto_obj, 
+                    "erro": f"❌ Você já tem {item.quantidade} no carrinho. Limite de estoque: {produto_obj.estoque}."
+                })
+            
             item.quantidade += quantidade
             item.subtotal += (produto_obj.venda * quantidade)
             item.save()
 
-        # 3. Atualiza o total geral do carrinho
+        # 4. Atualiza o total geral do carrinho e salva
         carrinho_obj.total += (produto_obj.venda * quantidade)
         carrinho_obj.save()
 
-        # Após salvar, redireciona para a Home (ou para a página do Carrinho)
-        return redirect("lojaapp:home")
+        # 5. Redireciona para a página do carrinho (Retorna Status 302 no terminal)
+        return redirect("lojaapp:carrinho")
 
 class ContatoView(TemplateView):
     template_name = "contato.html"
@@ -118,10 +129,13 @@ class CheckoutView(View):
         carrinho_id = request.session.get("carrinho_id")
         carrinho_obj = Carrinho.objects.filter(id=carrinho_id).first() if carrinho_id else None
         
-        # Opcional: Se o usuário estiver logado, podemos tentar pré-preencher o nome
-        # contexto = {"carrinho": carrinho_obj}
-        return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj})
-
+        # BUSCAMOS O CLIENTE LOGADO (Para preencher o formulário automaticamente)
+        cliente = request.user.cliente
+        
+        return render(request, "finalizar_pedido.html", {
+            "carrinho": carrinho_obj,
+            "cliente": cliente  # Enviamos o objeto cliente para o template
+        })
 
     def post(self, request, *args, **kwargs):
         carrinho_id = request.session.get("carrinho_id")
@@ -130,12 +144,10 @@ class CheckoutView(View):
         if not carrinho_obj:
             return redirect("lojaapp:home")
 
-        # 1. Captura de todos os NOVOS campos detalhados do HTML
+        # 1. Captura de dados do formulário
         nome = request.POST.get("ordenado_por")
         email = request.POST.get("email")
         tel = request.POST.get("telefone")
-        
-        # Campos de endereço detalhados
         end = request.POST.get("endereco")
         num = request.POST.get("numero")
         comp = request.POST.get("complemento")
@@ -144,39 +156,62 @@ class CheckoutView(View):
         est = request.POST.get("estado")
         cep = request.POST.get("cep")
 
-        # 2. Criação do pedido com a nova estrutura do Model
+        # [OPCIONAL] Atualizar o endereço padrão do cliente com o que ele digitou agora
+        cliente = request.user.cliente
+        cliente.endereco = end
+        cliente.numero = num
+        cliente.bairro = bair
+        cliente.cidade = cid
+        cliente.estado = est
+        cliente.cep = cep
+        cliente.telefone = tel
+        cliente.save()
+
+        # 2. Lógica do Cupom
+        cupom_codigo = request.POST.get("cupom")
+        valor_desconto = 0
+        if cupom_codigo:
+            cupom = Cupom.objects.filter(codigo=cupom_codigo, ativo=True).first()
+            if cupom:
+                if carrinho_obj.total >= cupom.minimo_pedido:
+                    valor_desconto = cupom.valor_desconto
+
+        total_final = carrinho_obj.total - valor_desconto
+
+        # 3. Criação do pedido e Baixa de Estoque
         try:
             novo_pedido = Pedido_order.objects.create(
                 carrinho=carrinho_obj,
                 ordenado_por=nome,
                 email=email,
                 telefone=tel,
-                endereco=end,        # Novo campo
-                numero=num,          # Novo campo
-                complemento=comp,    # Novo campo
-                bairro=bair,         # Novo campo
-                cidade=cid,          # Novo campo
-                estado=est,          # Novo campo
-                cep=cep,             # Novo campo
+                endereco=end,
+                numero=num,
+                complemento=comp,
+                bairro=bair,
+                cidade=cid,
+                estado=est,
+                cep=cep,
                 subtotal=carrinho_obj.total,
-                disconto=0,
-                total=carrinho_obj.total,
+                disconto=valor_desconto,
+                total=total_final,
                 pedido_status="Pedido Recebido"
             )
-            
-            # 3. Limpa a sessão apenas se o pedido foi criado com sucesso
+
+            # Baixa de estoque
+            for cp in carrinho_obj.carrinhoproduto_set.all():
+                produto = cp.produto
+                produto.estoque -= cp.quantidade
+                produto.save()
+
             if "carrinho_id" in request.session:
                 del request.session["carrinho_id"]
-            
+                
             return render(request, "pagamento.html", {"pedido": novo_pedido})
             
         except Exception as e:
-            # Mostra o erro exato no terminal para facilitar o conserto
-            print(f"ERRO CRÍTICO AO SALVAR PEDIDO: {e}")
-            return render(request, "finalizar_pedido.html", {
-                "carrinho": carrinho_obj, 
-                "erro": f"Erro técnico: {e}"
-            })
+            return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj, "erro": str(e)})
+
 
 class MeuCarrinhoView(TemplateView):
     template_name = "meu_carrinho.html"
@@ -331,3 +366,82 @@ class MeusPedidosView(LoginRequiredMixin, TemplateView):
             context["pedidos"] = []
             
         return context
+
+class AdminRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
+
+class AdminDashboardView(AdminRequiredMixin, TemplateView):
+    template_name = "admin_dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Estatísticas básicas
+        context["total_pedidos"] = Pedido_order.objects.count()
+        context["total_produtos"] = Produto.objects.count()
+        context["estoque_baixo"] = Produto.objects.filter(estoque__lt=5)
+        context["pedidos_recentes"] = Pedido_order.objects.all().order_by("-id")[:5]
+        
+        # SOMA DO FATURAMENTO (Excluindo cancelados)
+        soma = Pedido_order.objects.exclude(pedido_status="Pedido Cancelado").aggregate(Sum('total'))['total__sum']
+        context["faturamento_total"] = soma if soma else 0
+        
+        return context
+
+class AdminProdutoCreateView(AdminRequiredMixin, CreateView):
+    model = Produto
+    template_name = "admin_produto_form.html"
+    fields = ['titulo', 'slug', 'categoria', 'image', 'preco_mercado', 'venda', 'discricao', 'garantia', 'return_devolucao']
+    success_url = "/admin-dashboard/" # Redireciona após salvar
+
+class MeusDadosView(LoginRequiredMixin, TemplateView):
+    template_name = "meus_dados.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # É ESSENCIAL passar o objeto cliente para o template aparecer
+        context["cliente"] = self.request.user.cliente
+        return context
+
+    def post(self, request, *args, **kwargs):
+        cliente = request.user.cliente
+        # Salva os dados vindos do formulário
+        cliente.endereco = request.POST.get("endereco")
+        cliente.numero = request.POST.get("numero")
+        cliente.bairro = request.POST.get("bairro")
+        cliente.cidade = request.POST.get("cidade")
+        cliente.estado = request.POST.get("estado")
+        cliente.cep = request.POST.get("cep")
+        cliente.telefone = request.POST.get("telefone")
+        cliente.save()
+        return redirect("lojaapp:meusdados")
+
+# --- VIEW: MINHAS AVALIAÇÕES (Lista o que o cliente já comentou) ---
+class MinhasAvaliacoesView(LoginRequiredMixin, ListView):
+    template_name = "minhas_avaliacoes.html"
+    context_object_name = "avaliacoes"
+
+    def get_queryset(self):
+        return Avaliacao.objects.filter(cliente=self.request.user.cliente).order_by("-criado_em")
+
+# --- VIEW: AVALIAR PRODUTO (Lógica de envio) ---
+class AvaliarProdutoView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        pro_id = self.kwargs.get("pro_id")
+        produto = get_object_or_404(Produto, id=pro_id)
+        cliente = self.request.user.cliente # Use self.request.user.cliente
+        
+        nota = request.POST.get("nota")
+        comentario = request.POST.get("comentario")
+        
+        # Teste de terminal (apague depois)
+        print(f"Salvando avaliação para {produto.titulo}: Nota {nota}")
+
+        Avaliacao.objects.create(
+            produto=produto,
+            cliente=cliente,
+            nota=nota,
+            comentario=comentario
+        )
+        return redirect("lojaapp:produtodetalhe", slug=produto.slug)

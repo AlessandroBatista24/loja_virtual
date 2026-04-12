@@ -4,6 +4,14 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    
+    <!-- BLOCO DE ERRO (ADICIONADO) -->
+    {% if erro %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 10px; border: 1px solid #f5c6cb; margin-bottom: 25px; text-align: center; font-weight: bold;">
+            {{ erro }}
+        </div>
+    {% endif %}
+
     <h2 style="text-align: center; color: #333; margin-bottom: 20px; text-transform: uppercase;">Confirmar Item no Carrinho</h2>
     <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
     

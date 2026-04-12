@@ -2,44 +2,72 @@
 {% block title %}Meus Pedidos{% endblock %}
 
 {% block content %}
-<div style="margin-top: 20px;">
-    <h2 style="color: #333; text-transform: uppercase; margin-bottom: 25px;">📦 Histórico de Pedidos</h2>
-    
-    <div style="background: white; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead style="background: #f8f9fa; border-bottom: 2px solid #eee;">
-                <tr>
-                    <th style="padding: 15px;">Pedido</th>
-                    <th style="padding: 15px;">Data</th>
-                    <th style="padding: 15px;">Valor Total</th>
-                    <th style="padding: 15px; text-align: center;">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in pedidos %}
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 15px; font-weight: bold;">#{{ p.id }}</td>
-                    <td style="padding: 15px;">{{ p.criado_em|date:"d/m/Y H:i" }}</td>
-                    <td style="padding: 15px; font-weight: bold; color: #198754;">R$ {{ p.total }}</td>
-                    <td style="padding: 15px; text-align: center;">
-                        <span style="background: #e9f5ee; color: #198754; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
-                            {{ p.pedido_status }}
-                        </span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" style="padding: 50px; text-align: center; color: #999;">
-                        Você ainda não realizou nenhuma compra.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div style="margin-top: 30px;">
+    <h2 style="color: #333; text-transform: uppercase;">📦 Histórico de Pedidos</h2>
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
+
+    {% for p in pedidos %}
+    <div style="background: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <span style="color: #888; font-size: 0.8rem;">Pedido #{{ p.id }}</span>
+                <p style="margin: 0; font-weight: bold; color: #198754; font-size: 1.2rem;">Total: R$ {{ p.total }}</p>
+            </div>
+            <div style="text-align: right;">
+                <small style="color: #999;">Realizado em: {{ p.criado_em|date:"d/m/Y H:i" }}</small>
+            </div>
+        </div>
+
+        <!-- BARRA DE PROGRESSO VISUAL -->
+        <div style="display: flex; justify-content: space-between; position: relative; margin: 30px 0;">
+            <!-- Linha Cinza de Fundo -->
+            <div style="position: absolute; top: 12px; left: 0; width: 100%; height: 4px; background: #eee; z-index: 1;"></div>
+            
+            <!-- Linha Verde de Progresso (Dinâmica) -->
+            <div style="position: absolute; top: 12px; left: 0; height: 4px; background: #198754; z-index: 1; transition: 0.5s;
+                width: {% if p.pedido_status == 'Pedido Recebido' %}0%{% elif p.pedido_status == 'Pedido Processando' %}33%{% elif p.pedido_status == 'Pedido Caminho' %}66%{% else %}100%{% endif %};">
+            </div>
+
+            <!-- Pontos de Status -->
+            <div style="z-index: 2; text-align: center; width: 80px;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: #198754; margin: 0 auto; border: 4px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                <p style="font-size: 11px; margin-top: 8px; font-weight: bold; color: #198754;">Recebido</p>
+            </div>
+
+            <div style="z-index: 2; text-align: center; width: 80px;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: {% if p.pedido_status != 'Pedido Recebido' %}#198754{% else %}#ddd{% endif %}; margin: 0 auto; border: 4px solid white;"></div>
+                <p style="font-size: 11px; margin-top: 8px; {% if p.pedido_status != 'Pedido Recebido' %}color: #198754; font-weight: bold;{% endif %}">Processando</p>
+            </div>
+
+            <div style="z-index: 2; text-align: center; width: 80px;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: {% if p.pedido_status == 'Pedido Caminho' or p.pedido_status == 'Pedido Finalizado' %}#198754{% else %}#ddd{% endif %}; margin: 0 auto; border: 4px solid white;"></div>
+                <p style="font-size: 11px; margin-top: 8px; {% if p.pedido_status == 'Pedido Caminho' or p.pedido_status == 'Pedido Finalizado' %}color: #198754; font-weight: bold;{% endif %}">A Caminho</p>
+            </div>
+
+            <div style="z-index: 2; text-align: center; width: 80px;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: {% if p.pedido_status == 'Pedido Finalizado' %}#198754{% else %}#ddd{% endif %}; margin: 0 auto; border: 4px solid white;"></div>
+                <p style="font-size: 11px; margin-top: 8px; {% if p.pedido_status == 'Pedido Finalizado' %}color: #198754; font-weight: bold;{% endif %}">Entregue</p>
+            </div>
+        </div>
+
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <p style="margin: 0; font-size: 0.9rem; color: #555;">
+                <strong>Endereço de Entrega:</strong> {{ p.endereco }}, {{ p.numero }} - {{ p.bairro }}, {{ p.cidade }}/{{ p.estado }}
+            </p>
+        </div>
+        
+        <!-- Link para o produto para facilitar a avaliação -->
+        <div style="margin-top: 15px; text-align: right;">
+            <a href="{% url 'lojaapp:produtodetalhe' p.carrinho.carrinhoproduto_set.first.produto.slug %}" class="btn-detalhes" style="padding: 8px 15px; font-size: 12px; text-decoration: none;">
+                Ver detalhes e Avaliar Produto →
+            </a>
+        </div>
     </div>
-    
-    <div style="margin-top: 30px;">
-        <a href="{% url 'lojaapp:home' %}" class="btn-detalhes">Voltar para a Loja</a>
+    {% empty %}
+    <div style="text-align: center; padding: 50px; background: white; border-radius: 15px;">
+        <p style="color: #888; font-size: 1.1rem;">Você ainda não realizou nenhum pedido.</p>
+        <a href="{% url 'lojaapp:home' %}" class="btn-verde" style="display: inline-block; margin-top: 15px; text-decoration: none;">Ir às compras</a>
     </div>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -1,0 +1,76 @@
+{% extends "admin_base.html" %}
+{% block admin_content %}
+    <h2 style="color: #333; text-transform: uppercase; font-size: 1.5rem; margin-bottom: 25px;">📊 Painel de Controle</h2>
+    
+    <!-- Grid de Estatísticas: Agora com 3 Colunas -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+        
+        <!-- NOVO CARD: Faturamento Total -->
+        <div class="admin-card-stats" style="border-left-color: #ffc107;"> <!-- Amarelo para destacar dinheiro -->
+            <h4>Faturamento Total</h4>
+            <p>R$ {{ faturamento_total }}</p>
+        </div>
+
+        <div class="admin-card-stats">
+            <h4>Total de Pedidos</h4>
+            <p>{{ total_pedidos }}</p>
+        </div>
+
+        <div class="admin-card-stats">
+            <h4>Produtos em Loja</h4>
+            <p>{{ total_produtos }}</p>
+        </div>
+    </div>
+
+    <!-- Alerta de Estoque Crítico -->
+    {% if estoque_baixo %}
+    <div style="margin-top: 30px; background: #fff3cd; border-left: 6px solid #ffc107; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <h4 style="margin: 0; color: #856404; display: flex; align-items: center; gap: 10px;">
+            ⚠️ ATENÇÃO: ESTOQUE BAIXO
+        </h4>
+        <ul style="margin: 15px 0 0 20px; color: #664d03; font-weight: 500;">
+            {% for p in estoque_baixo %}
+                <li style="margin-bottom: 5px;">
+                    <strong>{{ p.titulo }}</strong>: Restam apenas <span style="color: #dc3545; font-weight: bold;">{{ p.estoque }}</span> unidades.
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'lojaapp:admindashboard' %}" style="display: inline-block; margin-top: 10px; font-size: 0.8rem; color: #856404; font-weight: bold;">Gerenciar Estoque →</a>
+    </div>
+    {% endif %}
+
+    <!-- Tabela de Pedidos Recentes -->
+    <div style="margin-top: 40px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h4 style="margin-top: 0; color: #333; text-transform: uppercase; font-size: 0.9rem; border-bottom: 2px solid #f4f4f4; padding-bottom: 10px;">
+            🛒 Pedidos Recentes
+        </h4>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left;">
+            <thead>
+                <tr style="color: #888; font-size: 0.8rem; text-transform: uppercase;">
+                    <th style="padding: 12px; border-bottom: 2px solid #f4f4f4;">ID</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #f4f4f4;">Cliente</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #f4f4f4;">Status</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #f4f4f4; text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pedidos_recentes %}
+                <tr style="border-bottom: 1px solid #f9f9f9; font-size: 0.9rem;">
+                    <td style="padding: 12px; font-weight: bold;">#{{ p.id }}</td>
+                    <td style="padding: 12px;">{{ p.ordenado_por }}</td>
+                    <td style="padding: 12px;">
+                        <span style="background: #e9f5ee; color: #198754; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">
+                            {{ p.pedido_status }}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold;">R$ {{ p.total }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 20px; text-align: center; color: #999;">Nenhum pedido registrado ainda.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

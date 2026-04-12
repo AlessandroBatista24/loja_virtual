@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Meus Dados{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 40px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h2 style="color: #198754; text-transform: uppercase; text-align: center; margin-bottom: 10px;">🏠 Meus Dados de Entrega</h2>
+    <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 30px;">
+        Mantenha seu endereço atualizado para facilitar suas compras.
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Nome Completo -->
+            <div style="grid-column: span 2;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Nome Completo</label>
+                <input type="text" name="nome_completo" value="{{ cliente.nome_completo|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+
+            <!-- Endereço -->
+            <div style="grid-column: span 2;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Rua / Avenida</label>
+                <input type="text" name="endereco" value="{{ cliente.endereco|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+
+            <!-- Número -->
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Número</label>
+                <input type="text" name="numero" value="{{ cliente.numero|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+
+            <!-- CEP -->
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">CEP</label>
+                <input type="text" name="cep" value="{{ cliente.cep|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+
+            <!-- Bairro -->
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Bairro</label>
+                <input type="text" name="bairro" value="{{ cliente.bairro|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+
+            <!-- Cidade -->
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Cidade</label>
+                <input type="text" name="cidade" value="{{ cliente.cidade|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Estado (UF)</label>
+                <input type="text" name="estado" maxlength="2" value="{{ cliente.estado|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;" placeholder="Ex: SP">
+            </div>
+
+            <!-- Telefone -->
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Telefone</label>
+                <input type="text" name="telefone" value="{{ cliente.telefone|default:'' }}" required 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-verde" style="width: 100%; margin-top: 30px; padding: 15px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold;">
+            💾 SALVAR ENDEREÇO PADRÃO
+        </button>
+    </form>
+</div>
+{% endblock %}

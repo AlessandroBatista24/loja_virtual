@@ -36,7 +36,7 @@
     <!-- Grade de Produtos -->
     <div class="row">
         {% for p in produto_list %}
-        <div class="card">
+        <div class="card" style="{% if p.estoque == 0 %}opacity: 0.7;{% endif %}">
             <!-- Imagem com Link -->
             <a href="{% url 'lojaapp:produtodetalhe' p.slug %}">
                 {% if p.image %}
@@ -53,14 +53,27 @@
             <p style="color: #888; font-size: 0.8rem; margin: 0;"><strike>R$ {{ p.preco_mercado }}</strike></p>
             <h3 style="color: #198754; margin: 5px 0;">R$ {{ p.venda }}</h3>
             
-            <p style="font-size: 0.8rem; color: #666;">
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">
                 {{ p.categoria.titulo }} | 👀 {{ p.visualizacao }}
             </p>
 
-            <div class="acoes">
-                <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes">Detalhes</a>
-                <a href="{% url 'lojaapp:addcarrinho' p.id %}" class="btn-verde">Comprar</a>
-            </div>
+            <!-- STATUS DE ESTOQUE VISUAL -->
+            {% if p.estoque > 0 %}
+                <p style="font-size: 0.75rem; color: #28a745; font-weight: bold; margin-bottom: 10px;">
+                    ✅ Em estoque ({{ p.estoque }} un)
+                </p>
+                <div class="acoes">
+                    <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes">Detalhes</a>
+                    <a href="{% url 'lojaapp:addcarrinho' p.id %}" class="btn-verde">Comprar</a>
+                </div>
+            {% else %}
+                <p style="font-size: 0.75rem; color: #dc3545; font-weight: bold; margin-bottom: 10px;">
+                    ❌ Esgotado
+                </p>
+                <div class="acoes">
+                    <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes" style="width: 100%;">Detalhes</a>
+                </div>
+            {% endif %}
         </div>  
         {% empty %}
             <div style="grid-column: 1 / -1; text-align: center; padding: 50px;">

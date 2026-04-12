@@ -3,6 +3,12 @@ from .models import Cliente, Categoria, Produto, Carrinho, CarrinhoProduto, Pedi
 from django.utils.html import format_html # Importe aqui em cima para ficar limpo
 from django.utils.safestring import mark_safe
 
+class ProdutoAdmin(admin.ModelAdmin):
+    # Isso faz a barra de pesquisa do Admin funcionar por Título e Descrição
+    search_fields = ['titulo', 'discricao'] 
+    list_display = ['titulo', 'categoria', 'venda', 'visualizacao']
+    list_filter = ['categoria']
+
 class CarrinhoProdutoInline(admin.TabularInline):
     model = CarrinhoProduto
     extra = 0
@@ -75,7 +81,7 @@ class PedidoAdmin(admin.ModelAdmin):
 # Registros
 admin.site.register(Cliente)
 admin.site.register(Categoria)
-admin.site.register(Produto)
+admin.site.register(Produto, ProdutoAdmin) # Registra com a classe de busca
 admin.site.register(Carrinho, CarrinhoAdmin)
 admin.site.register(Pedido_order, PedidoAdmin)
 admin.site.register(Avaliacao)

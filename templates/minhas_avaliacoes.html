@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Minhas Avaliações{% endblock %}
+
+{% block content %}
+<div style="margin-top: 30px;">
+    <h2 style="color: #333; text-transform: uppercase;">⭐ Minhas Avaliações</h2>
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
+
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        {% for av in avaliacoes %}
+            <div style="border-bottom: 1px solid #f4f4f4; padding: 20px 0; display: flex; gap: 20px; align-items: center;">
+                <!-- Imagem pequena do produto avaliado -->
+                <div style="width: 80px; height: 80px;">
+                    {% if av.produto.image %}
+                        <img src="{{ av.produto.image.url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                    {% endif %}
+                </div>
+
+                <div style="flex: 1;">
+                    <h4 style="margin: 0; color: #198754;">{{ av.produto.titulo }}</h4>
+                    <div style="color: #ffc107; font-size: 1.2rem; margin: 5px 0;">
+                        <!-- Gera estrelas visualmente -->
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= av.nota %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <p style="margin: 5px 0; color: #666; font-style: italic;">"{{ av.comentario }}"</p>
+                    <small style="color: #999;">Avaliado em: {{ av.criado_em|date:"d/m/Y" }}</small>
+                </div>
+                
+                <div>
+                    <a href="{% url 'lojaapp:produtodetalhe' av.produto.slug %}" class="btn-detalhes" style="padding: 8px 15px; font-size: 11px;">Ver Produto</a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="text-align: center; padding: 50px;">
+                <p style="color: #888; font-size: 1.1rem;">Você ainda não avaliou nenhum produto.</p>
+                <a href="{% url 'lojaapp:meuspedidos' %}" class="btn-verde" style="display: inline-block; margin-top: 15px; text-decoration: none;">Ver meus pedidos para avaliar</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

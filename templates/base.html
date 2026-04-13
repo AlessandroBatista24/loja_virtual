@@ -5,49 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/estilo.css' %}?v=3">
+    <!-- v=5 para garantir que o navegador carregue o CSS novo -->
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}?v=5">
 </head>
 <body>
-
     <header class="header-verde">
         <div class="topo">
-            <div class="logo">MINHA LOJA</div>
             
+            <!-- 1. LOGO (ESQUERDA) -->
+            <div class="logo">
+                <a href="{% url 'lojaapp:home' %}">MINHA LOJA</a>
+            </div>
+
+            <!-- 2. BUSCA (CENTRO) -->
+            <div class="busca-container">
+                <form action="{% url 'lojaapp:home' %}" method="GET" class="busca-form">
+                    <input type="text" name="q" placeholder="O que você procura hoje?">
+                    <button type="submit">BUSCAR</button>
+                </form>
+            </div>
+
+            <!-- 3. MENU (DIREITA) -->
             <nav class="nav-links">
                 <a href="{% url 'lojaapp:home' %}">Home</a>
                 <a href="{% url 'lojaapp:todos-produtos' %}">Categorias</a>
-                <a href="{% url 'lojaapp:contato' %}">Contato</a>
                 
                 {% if request.user.is_authenticated %}
-                <div class="dropdown-container">
-                    <!-- Botão Principal (Onde o usuário clica ou passa o mouse) -->
-                    <a href="#" class="btn-area-cliente">
-                        👤 OLÁ, {{ request.user.username|upper }} ▼
-                    </a>
-                    
-                    <!-- Lista Suspensa Corrigida -->
-                    <ul class="dropdown-menu">
-                        <li><a href="{% url 'lojaapp:meuspedidos' %}">📦 Meus Pedidos</a></li>
-                        <li><a href="{% url 'lojaapp:meusdados' %}">🏠 Meus Dados</a></li>
-                        <li><a href="{% url 'lojaapp:minhasavaliacoes' %}">⭐ Minhas Avaliações</a></li>
-                        <li class="divisor"></li>
-                        <li><a href="{% url 'lojaapp:clientelogout' %}" style="color: #ffc107;">🚪 Sair</a></li>
-                    </ul>
-                </div>
+                    <div class="dropdown-container">
+                        <a href="#" class="btn-area-cliente">
+                            👤 {{ request.user.username|upper }} ▼
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'lojaapp:meuspedidos' %}">📦 Meus Pedidos</a></li>
+                            <li><a href="{% url 'lojaapp:meusdados' %}">🏠 Meus Dados</a></li>
+                            <li><a href="{% url 'lojaapp:minhasavaliacoes' %}">⭐ Minhas Avaliações</a></li>
+                            <li class="divisor"></li>
+                            <li><a href="{% url 'lojaapp:clientelogout' %}" class="link-sair">🚪 Sair</a></li>
+                        </ul>
+                    </div>
                 {% else %}
-                    <a href="{% url 'lojaapp:clientelogin' %}" class="btn-login">Login</a>
-                    <a href="{% url 'lojaapp:clienteregistro' %}">Cadastrar</a>
+                    <a href="{% url 'lojaapp:clientelogin' %}">Login</a>
                 {% endif %}
                 
-                <a class="btn-carrinho" href="{% url 'lojaapp:carrinho' %}" style="margin-left: 20px;">🛒 Carrinho</a>
+                <a class="btn-carrinho" href="{% url 'lojaapp:carrinho' %}">🛒 Carrinho</a>
             </nav>
-        </div>
 
-        <div class="busca-container">
-            <form action="{% url 'lojaapp:home' %}" method="GET" class="busca-form">
-                <input type="text" name="q" placeholder="O QUE VOCÊ PROCURA HOJE?">
-                <button type="submit">BUSCAR</button>
-            </form>
         </div>
     </header>
 
@@ -55,6 +57,37 @@
         {% block content %}
         {% endblock %}
     </div>
+    <footer class="rodape">
+        <div class="topo"> 
+            
+            <!-- 1. NOME DA LOJA (ESQUERDA - POSIÇÃO FIXA) -->
+            <div class="rodape-logo">
+                <h4>MINHA LOJA</h4>
+                <p>Qualidade e compromisso <br> com o cliente.</p>
+            </div>
 
-</body>
+            <!-- 2. LINKS ÚTEIS (CENTRO - COM TÍTULO E LISTA) -->
+            <div class="rodape-links-container">
+                <h4>Links Úteis</h4>
+                <ul>
+                    <li><a href="{% url 'lojaapp:home' %}">Home</a></li>
+                    <li><a href="{% url 'lojaapp:todos-produtos' %}">Produtos</a></li>
+                    <li><a href="{% url 'lojaapp:sobre' %}">Sobre</a></li>
+                    <li><a href="{% url 'lojaapp:contato' %}">Contato</a></li>
+                </ul>
+            </div>
+
+            <!-- 3. ATENDIMENTO (DIREITA - POSIÇÃO FIXA) -->
+            <div class="rodape-atendimento">
+                <p><strong>ATENDIMENTO</strong></p>
+                <p>📍 Centro, MG</p>
+                <p>📞 (00) 99999-9999</p>
+            </div>
+
+        </div>
+        
+        <div class="rodape-inferior">
+            <p>&copy; 2026 Minha Loja - Todos os direitos reservados.</p>
+        </div>
+    </footer>
 </html>

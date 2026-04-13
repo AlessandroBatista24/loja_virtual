@@ -1,88 +1,162 @@
-/* Configurações Gerais */
-body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; }
+/* ============================================================
+   CONFIGURAÇÕES GERAIS
+   ============================================================ */
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: Arial, sans-serif; 
+    background-color: #f4f4f4; 
+}
 
-/* Header e Navegação */
-.header-verde { background-color: #198754; color: white; padding: 20px 50px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.logo { font-size: 24px; font-weight: bold; text-transform: uppercase; }
-
-.nav-links a { 
+/* ============================================================
+   HEADER: LINHA ÚNICA (LOGO - BUSCA - MENU)
+   ============================================================ */
+.header-verde { 
+    background-color: #198754; 
     color: white; 
-    text-decoration: none; 
-    margin-left: 15px; 
-    font-weight: bold; 
-    font-size: 13px; 
-    text-transform: uppercase; 
-    transition: 0.3s; 
+    padding: 30px 40px; /* 30px do topo e 40px das laterais */
+    box-sizing: border-box;
+    width: 100%;
 }
 
-/* Hover Global: O verde escuro que você quer */
-.nav-links a:hover, .btn-detalhes:hover, .btn-verde:hover { 
-    color: #ffffff !important;
-    background-color: #0a3622 !important; 
+.topo { 
+    display: flex; 
+    justify-content: center; /* ISSO trava a busca no centro morto da tela */
+    align-items: center; 
+    max-width: 100%; 
+    margin: 0 auto;
+    position: relative; /* Necessário para a logo flutuar em relação a ele */
+    min-height: 60px;   /* Garante altura para os elementos */
 }
 
-/* Botão do Carrinho */
-.btn-carrinho { 
-    background: white; 
-    color: #198754 !important; 
-    padding: 8px 15px; 
-    border-radius: 20px; 
-    transition: all 0.3s ease;
-    text-decoration: none;
+/* 1. LOGO: Agora ela flutua sem empurrar ninguém */
+.logo {
+    position: absolute;
+    left: 90px; /* 40px da margem original + 50px que você gostou = 90px */
+    display: flex;
+    align-items: center;
 }
-.btn-carrinho:hover { background: #0a3622 !important; color: white !important; }
 
-/* CAMPO DE BUSCA (REAJUSTADO) */
+.logo a {
+    color: white !important;
+    text-decoration: none !important;
+    font-size: 28px; 
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Coluna 2: Busca (Centralizada no Meio) */
 .busca-container { 
     display: flex; 
-    justify-content: center; 
-    margin-top: 10px; 
-    /* Move o conjunto todo para a esquerda */
-    transform: translateX(-100px); 
+    justify-content: center;
+    flex: 0 1 500px; /* Define um tamanho fixo para a busca não crescer demais */
 }
 
 .busca-form { 
     display: flex; 
     width: 100%; 
-    max-width: 600px; 
+    max-width: 450px; /* Tamanho ideal para não apertar o menu */
     background: white; 
     border-radius: 25px; 
     overflow: hidden; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .busca-form input { 
     border: none; 
-    padding: 12px 20px; 
-    width: 85%; /* Aumentamos o input para compensar a diminuição do botão */
+    padding: 10px 20px; 
+    flex: 1; 
     outline: none; 
-    font-size: 16px; 
+    font-size: 15px; 
 }
 
 .busca-form button { 
     border: none; 
     background: #ffc107; 
-    width: 15%; /* Botão um pouco menor que os 20% de antes */
+    padding: 0 20px;
     font-weight: bold; 
     cursor: pointer; 
-    transition: 0.3s; 
     color: #333; 
+}
+
+/* Coluna 3: Menu (Alinhado à Direita) */
+.nav-links {
+    position: absolute;
+    right: 40px; /* Cola na margem direita conforme o padrão */
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 15px;
+}
+.nav-links a { 
+    color: white; 
+    text-decoration: none; 
+    font-weight: bold; 
+    font-size: 13px; 
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: 0.3s;
 }
 
-.busca-form button:hover { 
-    background: #e0a800; 
+.nav-links a:hover { 
+    color: #ffffff !important; /* Mantém o texto branco */
+    background-color: #0a3622 !important; /* Fundo Verde Escuro */
+    border-radius: 5px;
+    padding: 5px 10px; /* Um pequeno respiro para o fundo aparecer */
 }
-/* Vitrine e Cards */
-.container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-.row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-.card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-.card img { max-width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
 
-/* BOTÕES ORIGINAIS (MENORES) */
-.acoes { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+/* Botão do Carrinho Customizado */
+.btn-carrinho { 
+    background: white; 
+    color: #198754 !important; 
+    padding: 8px 15px; 
+    border-radius: 20px; 
+    text-decoration: none;
+}
+
+.btn-carrinho:hover { 
+    background-color: #0a3622 !important; 
+    color: white !important; 
+}
+
+
+/* ============================================================
+   VITRINE E CARDS
+   ============================================================ */
+.container { 
+    max-width: 1200px; 
+    margin: 30px auto; 
+    padding: 0 20px; 
+}
+
+.row { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+    gap: 20px; 
+}
+
+.card { 
+    background: white; 
+    border-radius: 10px; 
+    padding: 15px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    text-align: center; 
+}
+
+.card img { 
+    max-width: 100%; 
+    height: 180px; 
+    object-fit: cover; 
+    border-radius: 8px; 
+}
+
+.acoes { 
+    display: flex; 
+    gap: 10px; 
+    justify-content: center; 
+    margin-top: 15px; 
+}
+
 .btn-detalhes, .btn-verde { 
     display: inline-block; 
     color: white; 
@@ -91,27 +165,24 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: 
     border-radius: 5px; 
     font-size: 13px; 
     font-weight: bold; 
-    transition: 0.3s; 
     border: none;
 }
+
+.btn-detalhes:hover, .btn-verde:hover { 
+    background-color: #0a3622 !important; 
+    color: #ffffff !important;
+}
+
 .btn-detalhes { background: #495057; } 
 .btn-verde { background: #198754; }
 
-/* --- Dashboard Admin Sidebar --- */
-.sidebar { width: 250px; background: #0a3622; color: white; position: fixed; height: 100vh; padding: 20px; z-index: 1000; }
-.sidebar-menu a { color: #fff; text-decoration: none; display: block; padding: 12px; border-radius: 8px; margin-bottom: 5px; }
-.sidebar-menu a:hover, .sidebar-menu a.active { background: #198754; }
-.main-content { margin-left: 250px; padding: 40px; min-height: 100vh; }
-.admin-card-stats { background: white; padding: 20px; border-radius: 12px; border-left: 5px solid #198754; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
-
-/* Container do Dropdown */
-.dropdown-container {
-    position: relative;
-    display: inline-block;
-    margin-left: 15px;
+/* ============================================================
+   DROPDOWN E ÁREA DO CLIENTE
+   ============================================================ */
+.dropdown-container { 
+    position: relative; 
 }
 
-/* Estilo do botão "Área do Cliente" */
 .btn-area-cliente {
     color: white;
     text-decoration: none;
@@ -120,68 +191,176 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: 
     padding: 10px 15px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    transition: 0.3s;
 }
 
-/* Container do Dropdown */
-.dropdown-container {
-    position: relative;
-    display: inline-block;
-    margin-left: 15px;
-}
-
-/* Botão "Área do Cliente" */
-.btn-area-cliente {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 13px;
-    padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.1); /* Efeito suave sobre o verde */
-    border-radius: 8px;
-    transition: 0.3s;
-}
-
-/* Menu Dropdown - AGORA NA MESMA COR DO CONTAINER (#198754) */
 .dropdown-menu {
     display: none;
     position: absolute;
-    background-color: #198754; /* Verde Principal idêntico ao Header */
-    min-width: 180px;
+    background-color: #198754;
+    min-width: 200px; /* Aumentamos um pouco a largura */
     box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
     z-index: 1001;
     list-style: none;
     padding: 10px 0;
     margin: 0;
-    border-radius: 0 0 8px 8px; /* Arredondado apenas embaixo para "colar" no botão */
+    border-radius: 8px; 
     top: 100%;
-    left: 0;
+    right: 0; /* ALINHA PELA DIREITA para não sumir da tela */
+    left: auto; /* Garante que não tente alinhar pela esquerda */
 }
 
-/* Links dentro do Dropdown */
+.dropdown-menu li {
+    width: 100%;
+}
+
 .dropdown-menu li a {
-    color: white;
-    padding: 12px 16px;
+    color: white !important;
+    padding: 12px 20px;
     text-decoration: none;
     display: block;
     font-size: 13px;
-    transition: 0.2s;
+    text-align: left;
 }
 
-/* Efeito Hover nas opções - AGORA COM O VERDE ESCURO (#0a3622) */
+
 .dropdown-menu li a:hover {
-    background-color: #0a3622; /* Verde Escuro para destacar a seleção */
+    background-color: #0a3622 !important;
     color: white !important;
 }
+.dropdown-container:hover .dropdown-menu { display: block; }
 
-/* Mostra o menu ao passar o mouse */
-.dropdown-container:hover .dropdown-menu {
-    display: block;
+.divisor { 
+    height: 1px; 
+    background-color: rgba(255,255,255,0.2); 
+    margin: 5px 10px; 
 }
 
-/* Divisor sutil */
-.divisor {
-    height: 1px;
-    background-color: rgba(255,255,255,0.2);
-    margin: 5px 10px;
+/* ============================================================
+   ADMIN SIDEBAR
+   ============================================================ */
+.sidebar { 
+    width: 250px; 
+    background: #0a3622; 
+    color: white; 
+    position: fixed; 
+    height: 100vh; 
+    padding: 20px; 
+}
+
+.sidebar-menu a { 
+    color: #fff; 
+    text-decoration: none; 
+    display: block; 
+    padding: 12px; 
+    border-radius: 8px; 
+}
+
+.main-content { margin-left: 250px; padding: 40px; }
+
+/* ============================================================
+   ESTILIZAÇÃO DO RODAPÉ (FOOTER)
+   ============================================================ */
+
+.rodape {
+    background-color: #0a3622; /* Verde Escuro */
+    color: white;
+    padding: 50px 0 20px 0;
+    margin-top: 60px;
+    width: 100%;
+}
+
+/* Reutiliza a lógica de alinhamento do topo */
+.rodape .topo {
+    position: relative;
+    display: flex;
+    justify-content: center; /* Trava o bloco de links no centro morto */
+    align-items: flex-start; /* Alinha o início das colunas pelo topo */
+    max-width: 100%;
+    margin: 0 auto;
+    min-height: 150px; /* Espaço para as listas crescerem */
+}
+
+/* 1. Coluna Esquerda: Nome da Loja */
+.rodape-logo {
+    position: absolute;
+    left: 90px; /* Mesma distância da logo do topo */
+    text-align: left;
+}
+
+.rodape-logo h4 {
+    margin: 0;
+    font-size: 20px;
+    color: #ffffff; /* Branco puro */
+    text-transform: uppercase;
+}
+
+.rodape-logo p {
+    font-size: 13px;
+    color: #b0b0b0; /* Cinza prateado */
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+/* 2. Coluna Central: Links Úteis (Vertical) */
+.rodape-links-container {
+    text-align: center;
+}
+
+.rodape-links-container h4 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.rodape-links-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rodape-links-container ul li {
+    margin-bottom: 10px;
+}
+
+.rodape-links-container ul li a {
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.rodape-links-container ul li a:hover {
+    color: #ffffff;
+}
+
+/* 3. Coluna Direita: Atendimento */
+.rodape-atendimento {
+    position: absolute;
+    right: 40px; /* Mesma distância do menu do topo */
+    text-align: right;
+}
+
+.rodape-atendimento p {
+    font-size: 13px;
+    color: #b0b0b0;
+    margin: 5px 0;
+}
+
+.rodape-atendimento strong {
+    color: #ffffff;
+    display: block;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-size: 15px;
+}
+
+/* Linha Final de Copyright */
+.rodape-inferior {
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 40px;
+    padding-top: 20px;
+    font-size: 12px;
+    color: #777;
 }

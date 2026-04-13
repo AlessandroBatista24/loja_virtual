@@ -2,14 +2,13 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}   
-    <!-- Barra de Filtros de Categoria -->
+    <!-- Barra de Filtros de Categoria (Mantida) -->
     <div style="margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
         <a href="{% url 'lojaapp:home' %}" 
            class="filtro-categoria {% if not categoria_selecionada %}filtro-categoria-active{% endif %}"
            style="text-decoration: none; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;">
            Todos
         </a>
-
         {% for cat in categorias %}
             <a href="{% url 'lojaapp:home' %}?categoria={{ cat.slug }}" 
                class="filtro-categoria {% if categoria_selecionada == cat %}filtro-categoria-active{% endif %}"
@@ -19,25 +18,17 @@
         {% endfor %}
     </div>
 
-    <!-- Título Dinâmico -->
+    <!-- Título Dinâmico (Mantido) -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
-        <h2 style="margin: 0;">
-            {% if categoria_selecionada %} 
-                Categoria: {{ categoria_selecionada.titulo }} 
-            {% else %} 
-                Produtos em Destaque 
-            {% endif %}
-        </h2>
+        <h2 style="margin: 0;">{% if categoria_selecionada %}{{ categoria_selecionada.titulo }}{% else %}Produtos em Destaque{% endif %}</h2>
         <span style="background: #198754; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold;">
             {{ produto_list.count }} Itens
         </span>
     </div>
     
-    <!-- Grade de Produtos -->
     <div class="row">
         {% for p in produto_list %}
         <div class="card" style="{% if p.estoque == 0 %}opacity: 0.7;{% endif %}">
-            <!-- Imagem com Link -->
             <a href="{% url 'lojaapp:produtodetalhe' p.slug %}">
                 {% if p.image %}
                     <img src="{{ p.image.url }}" alt="{{ p.titulo }}">
@@ -49,6 +40,18 @@
             <h4 style="margin: 15px 0 5px;">
                 <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" style="text-decoration: none; color: #333;">{{ p.titulo }}</a>
             </h4>
+
+            <!-- ESTRELAS MOVIDAS PARA CÁ (Abaixo do título, visível para todos) -->
+            <div style="margin-bottom: 10px;">
+                <span style="color: #ffc107; font-size: 0.9rem;">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= p.media_avaliacao %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </span>
+                <span style="color: #888; font-size: 0.8rem; margin-left: 5px;">
+                    ({{ p.avaliacoes.count }})
+                </span>
+            </div>          
             
             <p style="color: #888; font-size: 0.8rem; margin: 0;"><strike>R$ {{ p.preco_mercado }}</strike></p>
             <h3 style="color: #198754; margin: 5px 0;">R$ {{ p.venda }}</h3>
@@ -57,19 +60,14 @@
                 {{ p.categoria.titulo }} | 👀 {{ p.visualizacao }}
             </p>
 
-            <!-- STATUS DE ESTOQUE VISUAL -->
             {% if p.estoque > 0 %}
-                <p style="font-size: 0.75rem; color: #28a745; font-weight: bold; margin-bottom: 10px;">
-                    ✅ Em estoque ({{ p.estoque }} un)
-                </p>
+                <p style="font-size: 0.75rem; color: #28a745; font-weight: bold; margin-bottom: 10px;">✅ Em estoque ({{ p.estoque }} un)</p>
                 <div class="acoes">
                     <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes">Detalhes</a>
                     <a href="{% url 'lojaapp:addcarrinho' p.id %}" class="btn-verde">Comprar</a>
                 </div>
             {% else %}
-                <p style="font-size: 0.75rem; color: #dc3545; font-weight: bold; margin-bottom: 10px;">
-                    ❌ Esgotado
-                </p>
+                <p style="font-size: 0.75rem; color: #dc3545; font-weight: bold; margin-bottom: 10px;">❌ Esgotado</p>
                 <div class="acoes">
                     <a href="{% url 'lojaapp:produtodetalhe' p.slug %}" class="btn-detalhes" style="width: 100%;">Detalhes</a>
                 </div>

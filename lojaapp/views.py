@@ -9,6 +9,9 @@ from django.urls import reverse_lazy
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from .models import Produto, Categoria, Carrinho, CarrinhoProduto, Avaliacao, Pedido_order, Cliente, Cupom
+from django.db.models import Avg
+from django.contrib import messages
+from django.db import transaction 
 
 User = get_user_model()
 
@@ -51,17 +54,28 @@ class ProdutoDetalheView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         url_slug = self.kwargs['slug']        
-        produto_obj = Produto.objects.get(slug=url_slug)       
+        produto_obj = get_object_or_404(Produto, slug=url_slug)       
         
-        # Incrementa visualização
         produto_obj.visualizacao += 1
         produto_obj.save()       
         
         context["produto"] = produto_obj
-        
-        # BUSCA AS AVALIAÇÕES PARA EXIBIR NA TELA
         context["avaliacoes"] = Avaliacao.objects.filter(produto=produto_obj).order_by("-criado_em")
         
+        # --- LÓGICA DA TRAVA DE SEGURANÇA (CORRIGIDA) ---
+        pode_avaliar = False
+        if self.request.user.is_authenticated:
+            try:
+                # Verifica se o cliente logado tem um pedido finalizado com este produto
+                pode_avaliar = Pedido_order.objects.filter(
+                    carrinho__cliente__user=self.request.user,
+                    carrinho__carrinhoproduto__produto=produto_obj,
+                    pedido_status="Pedido Finalizado"
+                ).exists()
+            except:
+                pode_avaliar = False
+        
+        context["pode_avaliar"] = pode_avaliar
         return context
 
 class AddCarrinhoView(View):
@@ -128,14 +142,8 @@ class CheckoutView(View):
     def get(self, request, *args, **kwargs):
         carrinho_id = request.session.get("carrinho_id")
         carrinho_obj = Carrinho.objects.filter(id=carrinho_id).first() if carrinho_id else None
-        
-        # BUSCAMOS O CLIENTE LOGADO (Para preencher o formulário automaticamente)
         cliente = request.user.cliente
-        
-        return render(request, "finalizar_pedido.html", {
-            "carrinho": carrinho_obj,
-            "cliente": cliente  # Enviamos o objeto cliente para o template
-        })
+        return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj, "cliente": cliente})
 
     def post(self, request, *args, **kwargs):
         carrinho_id = request.session.get("carrinho_id")
@@ -144,7 +152,7 @@ class CheckoutView(View):
         if not carrinho_obj:
             return redirect("lojaapp:home")
 
-        # 1. Captura de dados do formulário
+        # 1. Captura de dados
         nome = request.POST.get("ordenado_por")
         email = request.POST.get("email")
         tel = request.POST.get("telefone")
@@ -156,54 +164,55 @@ class CheckoutView(View):
         est = request.POST.get("estado")
         cep = request.POST.get("cep")
 
-        # [OPCIONAL] Atualizar o endereço padrão do cliente com o que ele digitou agora
+        # 2. VÍNCULO FUNDAMENTAL (O que estava faltando)
         cliente = request.user.cliente
-        cliente.endereco = end
-        cliente.numero = num
-        cliente.bairro = bair
-        cliente.cidade = cid
-        cliente.estado = est
-        cliente.cep = cep
-        cliente.telefone = tel
+        carrinho_obj.cliente = cliente # Agora o carrinho tem um dono!
+        carrinho_obj.save()
+
+        # Atualiza endereço padrão do cliente
+        cliente.endereco, cliente.numero = end, num
+        cliente.bairro, cliente.cidade = bair, cid
+        cliente.estado, cliente.cep, cliente.telefone = est, cep, tel
         cliente.save()
 
-        # 2. Lógica do Cupom
+        # 3. Lógica do Cupom
         cupom_codigo = request.POST.get("cupom")
         valor_desconto = 0
         if cupom_codigo:
             cupom = Cupom.objects.filter(codigo=cupom_codigo, ativo=True).first()
-            if cupom:
-                if carrinho_obj.total >= cupom.minimo_pedido:
-                    valor_desconto = cupom.valor_desconto
+            if cupom and carrinho_obj.total >= cupom.minimo_pedido:
+                valor_desconto = cupom.valor_desconto
 
         total_final = carrinho_obj.total - valor_desconto
 
-        # 3. Criação do pedido e Baixa de Estoque
+        # 4. Criação do pedido e Baixa de Estoque (Com transação segura)
         try:
-            novo_pedido = Pedido_order.objects.create(
-                carrinho=carrinho_obj,
-                ordenado_por=nome,
-                email=email,
-                telefone=tel,
-                endereco=end,
-                numero=num,
-                complemento=comp,
-                bairro=bair,
-                cidade=cid,
-                estado=est,
-                cep=cep,
-                subtotal=carrinho_obj.total,
-                disconto=valor_desconto,
-                total=total_final,
-                pedido_status="Pedido Recebido"
-            )
+            with transaction.atomic(): # Garante que tudo ou nada seja salvo
+                novo_pedido = Pedido_order.objects.create(
+                    carrinho=carrinho_obj,
+                    ordenado_por=nome,
+                    email=email,
+                    telefone=tel,
+                    endereco=end,
+                    numero=num,
+                    complemento=comp,
+                    bairro=bair,
+                    cidade=cid,
+                    estado=est,
+                    cep=cep,
+                    subtotal=carrinho_obj.total,
+                    disconto=valor_desconto,
+                    total=total_final,
+                    pedido_status="Pedido Recebido"
+                )
 
-            # Baixa de estoque
-            for cp in carrinho_obj.carrinhoproduto_set.all():
-                produto = cp.produto
-                produto.estoque -= cp.quantidade
-                produto.save()
+                # Baixa de estoque
+                for cp in carrinho_obj.carrinhoproduto_set.all():
+                    produto = cp.produto
+                    produto.estoque -= cp.quantidade
+                    produto.save()
 
+            # Limpa a sessão
             if "carrinho_id" in request.session:
                 del request.session["carrinho_id"]
                 
@@ -211,7 +220,6 @@ class CheckoutView(View):
             
         except Exception as e:
             return render(request, "finalizar_pedido.html", {"carrinho": carrinho_obj, "erro": str(e)})
-
 
 class MeuCarrinhoView(TemplateView):
     template_name = "meu_carrinho.html"
@@ -400,13 +408,11 @@ class MeusDadosView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # É ESSENCIAL passar o objeto cliente para o template aparecer
         context["cliente"] = self.request.user.cliente
         return context
 
     def post(self, request, *args, **kwargs):
         cliente = request.user.cliente
-        # Salva os dados vindos do formulário
         cliente.endereco = request.POST.get("endereco")
         cliente.numero = request.POST.get("numero")
         cliente.bairro = request.POST.get("bairro")
@@ -415,6 +421,10 @@ class MeusDadosView(LoginRequiredMixin, TemplateView):
         cliente.cep = request.POST.get("cep")
         cliente.telefone = request.POST.get("telefone")
         cliente.save()
+        
+        # ADICIONE ESTA LINHA:
+        messages.success(request, "Seus dados foram atualizados com sucesso!")
+        
         return redirect("lojaapp:meusdados")
 
 # --- VIEW: MINHAS AVALIAÇÕES (Lista o que o cliente já comentou) ---

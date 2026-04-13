@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Avg 
 
 class Cliente(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -36,6 +37,11 @@ class Produto(models.Model):
     return_devolucao = models.CharField(max_length=300, null=True, blank=True)
     visualizacao = models.PositiveIntegerField(default=0)
     estoque = models.PositiveIntegerField(default=0)
+
+    def media_avaliacao(self):
+        # O 'avaliacoes' aqui vem do related_name que você definiu no model Avaliacao
+        media = self.avaliacoes.aggregate(Avg('nota'))['nota__avg']
+        return round(media) if media else 0
 
     def __str__(self):
         return self.titulo

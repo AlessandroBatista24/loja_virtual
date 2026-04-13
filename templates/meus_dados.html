@@ -3,6 +3,17 @@
 
 {% block content %}
 <div style="max-width: 700px; margin: 40px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    
+    <!-- BLOCO DE MENSAGENS DE SUCESSO OU ERRO -->
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 15px; margin-bottom: 20px; border-radius: 8px; text-align: center; font-weight: bold; 
+                        background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <h2 style="color: #198754; text-transform: uppercase; text-align: center; margin-bottom: 10px;">🏠 Meus Dados de Entrega</h2>
     <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 30px;">
         Mantenha seu endereço atualizado para facilitar suas compras.
@@ -16,60 +27,60 @@
             <div style="grid-column: span 2;">
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Nome Completo</label>
                 <input type="text" name="nome_completo" value="{{ cliente.nome_completo|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
 
             <!-- Endereço -->
             <div style="grid-column: span 2;">
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Rua / Avenida</label>
                 <input type="text" name="endereco" value="{{ cliente.endereco|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
 
             <!-- Número -->
             <div>
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Número</label>
                 <input type="text" name="numero" value="{{ cliente.numero|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
 
             <!-- CEP -->
             <div>
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">CEP</label>
                 <input type="text" name="cep" value="{{ cliente.cep|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
 
             <!-- Bairro -->
             <div>
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Bairro</label>
                 <input type="text" name="bairro" value="{{ cliente.bairro|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
 
             <!-- Cidade -->
             <div>
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Cidade</label>
                 <input type="text" name="cidade" value="{{ cliente.cidade|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
 
             <!-- Estado -->
             <div>
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Estado (UF)</label>
                 <input type="text" name="estado" maxlength="2" value="{{ cliente.estado|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;" placeholder="Ex: SP">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" placeholder="Ex: SP">
             </div>
 
             <!-- Telefone -->
             <div>
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Telefone</label>
                 <input type="text" name="telefone" value="{{ cliente.telefone|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
             </div>
         </div>
 
-        <button type="submit" class="btn-verde" style="width: 100%; margin-top: 30px; padding: 15px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold;">
+        <button type="submit" class="btn-verde" style="width: 100%; margin-top: 30px; padding: 15px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold; color: white; border-radius: 8px;">
             💾 SALVAR ENDEREÇO PADRÃO
         </button>
     </form>

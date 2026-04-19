@@ -44,17 +44,40 @@ class Produto(models.Model):
     slug = models.SlugField(unique=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="produtos")
-    preco_mercado = models.PositiveIntegerField()
-    venda = models.PositiveIntegerField()
+    preco_mercado = models.PositiveIntegerField(null=True, blank=True)
+    venda = models.PositiveIntegerField(null=True, blank=True) # Permitimos nulo para o Python calcular
     discricao = models.TextField()
     garantia = models.CharField(max_length=300, null=True, blank=True)
     return_devolucao = models.CharField(max_length=300, null=True, blank=True)
     visualizacao = models.PositiveIntegerField(default=0)
     estoque = models.PositiveIntegerField(default=0)
+    
+    # Campos Financeiros
+    preco_custo = models.PositiveIntegerField(default=0)
+    imposto_percentual = models.PositiveIntegerField(default=0, help_text="Ex: 6 para 6%")
+    taxa_venda_percentual = models.PositiveIntegerField(default=0, help_text="Taxa cartão/marketplace")
+    custo_fixo_unidade = models.PositiveIntegerField(default=0, help_text="Custo de embalagem, frete fixo, etc.")
+    margem_desejada = models.PositiveIntegerField(default=20, help_text="Quanto você quer ganhar limpo (%)")
 
     def media_avaliacao(self):
         media = self.avaliacoes.aggregate(Avg('nota'))['nota__avg']
         return round(media) if media else 0
+
+    def save(self, *args, **kwargs):
+        # Lógica de cálculo de Preço de Venda (Markup)
+        taxas_totais = self.imposto_percentual + self.taxa_venda_percentual + self.margem_desejada
+        
+        if taxas_totais < 100:
+            divisor = (100 - taxas_totais) / 100
+            # Preço = (Custos Fixos + Custo Produto) / Margem Restante
+            calculo = (self.preco_custo + self.custo_fixo_unidade) / divisor
+            self.venda = round(calculo)
+        
+        # Garante que o preço de mercado não fique vazio
+        if not self.preco_mercado or self.preco_mercado < self.venda:
+            self.preco_mercado = round(self.venda * 1.2) # Sugere 20% acima do preço de venda
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.titulo

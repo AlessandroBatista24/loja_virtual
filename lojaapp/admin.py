@@ -1,12 +1,11 @@
 from django.contrib import admin
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from .models import (
     Cliente, Categoria, Produto, Carrinho, CarrinhoProduto, 
     Pedido_order, Avaliacao, PedidoRecebido, PedidoProcessando, 
     PedidoCaminho, PedidoFinalizado, Endereco, ImagemProduto, Cupom, Banner
 )
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-
 # --- 1. CONFIGURAÇÕES VISUAIS (INLINES) ---
 
 class ImagemProdutoInline(admin.TabularInline):
@@ -19,11 +18,60 @@ class CarrinhoProdutoInline(admin.TabularInline):
     readonly_fields = ('produto', 'quantidade', 'subtotal')
 
 # --- 2. ADMINISTRAÇÃO DE PRODUTOS ---
-
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
+    # Organização visual dos campos
+    fieldsets = (
+        ('Informações Básicas', {
+            'fields': ('titulo', 'slug', 'categoria', 'image', 'discricao')
+        }),
+        ('Financeiro e Lucro Real', {
+            'fields': (
+                'preco_custo', 
+                'imposto_percentual', 
+                'taxa_venda_percentual', 
+                'custo_fixo_unidade',
+                'margem_desejada',
+                'venda', 
+                'preco_mercado'
+            ),
+            'description': '<b>Dica:</b> O preço de venda mudará em tempo real conforme você preenche os custos e a margem.',
+        }),
+        ('Estoque e Extras', {
+            'fields': ('estoque', 'visualizacao', 'garantia', 'return_devolucao')
+        }),
+    )
+
+    list_display = ['titulo', 'venda', 'preco_custo', 'lucro_liquido_real', 'margem_percentual', 'estoque']
+    prepopulated_fields = {'slug': ('titulo',)}
     inlines = [ImagemProdutoInline]
-    
+
+    # --- ATIVA O CÁLCULO SIMULTÂNEO ---
+    class Media:
+        js = ('js/calculo_venda.js',)
+
+    def lucro_liquido_real(self, obj):
+        if obj.venda:
+            imposto = (obj.venda * obj.imposto_percentual) / 100
+            taxas = (obj.venda * obj.taxa_venda_percentual) / 100
+            lucro = obj.venda - (obj.preco_custo + imposto + taxas + obj.custo_fixo_unidade)
+            cor = "green" if lucro > 0 else "red"
+            return format_html('<b style="color: {};">R$ {}</b>', cor, round(lucro, 2))
+        return "Aguardando cálculo"
+
+    def margem_percentual(self, obj):
+        if obj.venda and obj.venda > 0:
+            imposto = (obj.venda * obj.imposto_percentual) / 100
+            taxas = (obj.venda * obj.taxa_venda_percentual) / 100
+            lucro = obj.venda - (obj.preco_custo + imposto + taxas + obj.custo_fixo_unidade)
+            margem = (lucro / obj.venda) * 100
+            cor = "green" if margem > 0 else "red"
+            return format_html('<span style="color: {};">{}%</span>', cor, round(margem, 2))
+        return "0%"
+
+    lucro_liquido_real.short_description = 'Lucro Líquido'
+    margem_percentual.short_description = 'Margem %'
+
 # --- 3. ADMINISTRAÇÃO DE PEDIDOS E CLIENTES ---
 
 @admin.register(Pedido_order)

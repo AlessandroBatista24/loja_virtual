@@ -3,26 +3,52 @@
 
 {% block content %}   
 <div style="margin-top: 20px;">
-    <p style="font-size: 0.9rem; color: #666; margin-bottom: 30px;">
-        <a href="{% url 'lojaapp:home' %}" style="color: #198754; text-decoration: none;">Home</a> / {{ produto.titulo }}
+    <!-- Caminho (Breadcrumb) -->
+    <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+        <a href="{% url 'lojaapp:home' %}" style="color: #198754; text-decoration: none;">Home</a> / 
+        <a href="{% url 'lojaapp:home' %}?categoria={{ produto.categoria.slug }}" style="color: #198754; text-decoration: none;">{{ produto.categoria.titulo }}</a> / 
+        {{ produto.titulo }}
     </p>
 
     <div style="display: flex; gap: 40px; flex-wrap: wrap; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        <!-- Imagem -->
-        <div style="flex: 1; min-width: 300px;">
-            {% if produto.image %}
-                <img src="{{ produto.image.url }}" alt="{{ produto.titulo }}" style="width: 100%; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); object-fit: cover;">
-            {% endif %}
+        
+        <!-- LADO ESQUERDO: IMAGEM PRINCIPAL E GALERIA -->
+        <div style="flex: 1; min-width: 320px;">
+            <div style="margin-bottom: 15px;">
+                {% if produto.image %}
+                    <img id="foto-principal" src="{{ produto.image.url }}" alt="{{ produto.titulo }}" 
+                         style="width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); object-fit: cover; transition: 0.3s;">
+                {% else %}
+                    <div style="height: 350px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 10px;">Sem Imagem</div>
+                {% endif %}
+            </div>
+
+            <!-- Miniaturas (Fotos Extras) -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <!-- Foto Principal também fica na galeria -->
+                {% if produto.image %}
+                    <img src="{{ produto.image.url }}" onclick="mudarFoto(this.src)" 
+                         style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid #198754;" class="miniatura">
+                {% endif %}
+                
+                <!-- Loop pelas imagens cadastradas no Inline do Admin -->
+                {% for img_extra in produto.imagens.all %}
+                    <img src="{{ img_extra.imagem.url }}" onclick="mudarFoto(this.src)" 
+                         style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid #ddd;" class="miniatura">
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Info -->
-        <div style="flex: 1.2; min-width: 300px;">
-            <h1 style="margin: 0; color: #333;">{{ produto.titulo }}</h1>
+        <!-- LADO DIREITO: INFORMAÇÕES DO PRODUTO -->
+        <div style="flex: 1.2; min-width: 320px;">
+            <h1 style="margin: 0; color: #333; font-size: 2rem;">{{ produto.titulo }}</h1>
             
-            <div style="display: flex; justify-content: space-between; margin: 15px 0;">
-                <span style="background: #6c757d; color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem;">{{ produto.categoria.titulo }}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+                <span style="background: #e9f5ee; color: #198754; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
+                    {{ produto.categoria.titulo }}
+                </span>
                 
-                <div style="cursor: pointer;" onclick="verificarAvaliacao()">
+                <div style="cursor: pointer;" onclick="document.getElementById('secao-avaliacoes').scrollIntoView({behavior: 'smooth'})">
                     <span style="color: #ffc107; font-size: 1.2rem;">
                         {% for i in "12345" %}
                             {% if forloop.counter <= produto.media_avaliacao %}★{% else %}☆{% endif %}
@@ -32,70 +58,125 @@
                 </div>
             </div>
 
-            <h2 style="color: #198754;">R$ {{ produto.venda }}</h2>
-            <p style="color: #888; text-decoration: line-through;">De: R$ {{ produto.preco_mercado }}</p>
-
-            <div style="margin: 30px 0;">
-                <p><strong>Descrição:</strong></p>
-                <p style="color: #555; line-height: 1.6; text-align: justify;">{{ produto.discricao }}</p>
+            <div style="margin: 20px 0;">
+                <p style="color: #888; text-decoration: line-through; margin: 0;">De: R$ {{ produto.preco_mercado }}</p>
+                <h2 style="color: #198754; font-size: 2.5rem; margin: 5px 0;">R$ {{ produto.venda }}</h2>
+                <p style="font-size: 0.9rem; color: #666;">👀 {{ produto.visualizacao }} visualizações</p>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="margin: 25px 0; padding: 20px; background: #fdfdfd; border-radius: 10px; border: 1px solid #eee;">
+                <p><strong>Descrição:</strong></p>
+                <p style="color: #555; line-height: 1.6; text-align: justify;">{{ produto.discricao }}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                <p style="font-size: 0.9rem;">🛡️ <strong>Garantia:</strong> {{ produto.garantia|default:"Consulte o fabricante" }}</p>
+                <p style="font-size: 0.9rem;">🔄 <strong>Devolução:</strong> {{ produto.return_devolucao|default:"7 dias após o recebimento" }}</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
                 {% if produto.estoque > 0 %}
-                    <a href="{% url 'lojaapp:addcarrinho' produto.id %}" class="btn-verde" style="text-align: center; padding: 18px; text-decoration: none; color: white; border-radius: 8px;">Comprar Agora</a>
+                    <p style="color: #28a745; font-weight: bold;">✅ Em estoque ({{ produto.estoque }} unidades disponíveis)</p>
+                    <a href="{% url 'lojaapp:addcarrinho' produto.id %}" class="btn-verde" 
+                       style="text-align: center; padding: 18px; text-decoration: none; font-size: 1.1rem; border-radius: 8px;">
+                       Adicionar ao Carrinho
+                    </a>
                 {% else %}
-                    <button disabled style="padding: 18px; background: #ccc; border-radius: 8px;">Esgotado</button>
+                    <p style="color: #dc3545; font-weight: bold;">❌ Produto Esgotado</p>
+                    <button disabled style="padding: 18px; background: #ccc; border: none; color: #666; border-radius: 8px; cursor: not-allowed; font-weight: bold;">
+                        AVISE-ME QUANDO CHEGAR
+                    </button>
                 {% endif %}
-                <a href="{% url 'lojaapp:home' %}" class="btn-detalhes" style="text-align: center; padding: 12px; text-decoration: none; color: white; border-radius: 8px; background: #495057;">Voltar</a>
+                <a href="{% url 'lojaapp:home' %}" class="btn-detalhes" 
+                   style="text-align: center; padding: 12px; text-decoration: none; background: #495057; border-radius: 8px;">
+                   Voltar para a Loja
+                </a>
             </div>
         </div>
     </div>
 
     <!-- SEÇÃO DE AVALIAÇÕES -->
-    <div id="secao-avaliacoes" style="margin-top: 50px; background: white; padding: 30px; border-radius: 15px;">
-        <h3>⭐ Avaliações</h3>
+    <div id="secao-avaliacoes" style="margin-top: 50px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h3 style="border-bottom: 2px solid #f4f4f4; padding-bottom: 15px; margin-bottom: 25px;">⭐ Avaliações de Clientes</h3>
+        
         {% for av in avaliacoes %}
-            <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
-                <strong style="color: #198754;">{{ av.cliente.nome_completo }}</strong>
-                <p style="font-style: italic; color: #555;">"{{ av.comentario }}"</p>
+            <div style="border-bottom: 1px solid #f9f9f9; padding: 20px 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: #198754; font-size: 1.1rem;">{{ av.cliente.nome_completo }}</strong>
+                    <span style="color: #ffc107; font-size: 1.1rem;">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= av.nota %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+                <p style="font-style: italic; color: #555; margin: 10px 0;">"{{ av.comentario }}"</p>
+                <small style="color: #999;">Avaliado em {{ av.criado_em|date:"d/m/Y" }}</small>
             </div>
         {% empty %}
-            <p style="color: #888;">Sem avaliações ainda.</p>
+            <div style="text-align: center; padding: 30px; color: #888;">
+                <p>Este produto ainda não recebeu avaliações. Seja o primeiro a comprar e avaliar!</p>
+            </div>
         {% endfor %}
 
-        <!-- TRAVA DE SEGURANÇA NO TEMPLATE -->
-        {% if request.user.is_authenticated %}
-            {% if pode_avaliar %}
-                <div style="margin-top: 30px; background: #f9f9f9; padding: 20px; border-radius: 10px;">
-                    <h4>Deixe sua avaliação:</h4>
-                    <form action="{% url 'lojaapp:avaliarproduto' produto.id %}" method="POST">
-                        {% csrf_token %}
-                        <select name="nota" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                            <option value="5">5 Estrelas</option><option value="4">4 Estrelas</option>
-                            <option value="3">3 Estrelas</option><option value="2">2 Estrelas</option>
-                            <option value="1">1 Estrela</option>
-                        </select>
-                        <textarea name="comentario" rows="3" style="width: 100%; padding: 10px; margin-bottom: 10px;" placeholder="Sua opinião..."></textarea>
-                        <button type="submit" class="btn-verde" style="padding: 10px 20px; color: white; border: none; cursor: pointer; border-radius: 5px;">Enviar</button>
-                    </form>
-                </div>
+        <!-- FORMULÁRIO DE AVALIAÇÃO -->
+        <div style="margin-top: 40px; padding: 30px; background: #f9f9f9; border-radius: 10px;">
+            {% if request.user.is_authenticated %}
+                {% if pode_avaliar %}
+                    {% if ja_avaliou %}
+                        <div style="text-align: center; color: #198754; font-weight: bold;">
+                            ✅ Você já avaliou este produto. Obrigado pelo seu feedback!
+                        </div>
+                    {% else %}
+                        <h4>Deixe sua avaliação:</h4>
+                        <form action="{% url 'lojaapp:avaliarproduto' produto.id %}" method="POST">
+                            {% csrf_token %}
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px;">Sua nota:</label>
+                                <select name="nota" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">
+                                    <option value="5">⭐⭐⭐⭐⭐ (Excelente)</option>
+                                    <option value="4">⭐⭐⭐⭐ (Muito Bom)</option>
+                                    <option value="3">⭐⭐⭐ (Bom)</option>
+                                    <option value="2">⭐⭐ (Regular)</option>
+                                    <option value="1">⭐ (Ruim)</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px;">Seu comentário:</label>
+                                <textarea name="comentario" rows="4" required style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;" placeholder="Conte sua experiência com o produto..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-verde" style="padding: 15px 30px; border: none; cursor: pointer; border-radius: 8px; font-weight: bold;">
+                                PUBLICAR AVALIAÇÃO
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <p style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; text-align: center;">
+                        🔒 Apenas clientes que **receberam o produto** podem deixar avaliações.
+                    </p>
+                {% endif %}
             {% else %}
-                <p style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 20px;">Apenas compradores podem avaliar.</p>
+                <p style="text-align: center;">
+                    Para avaliar, você precisa estar <a href="{% url 'lojaapp:clientelogin' %}" style="color: #198754; font-weight: bold;">logado na sua conta</a>.
+                </p>
             {% endif %}
-        {% else %}
-            <p style="text-align: center; margin-top: 20px;"><a href="{% url 'lojaapp:clientelogin' %}" style="color: #198754;">Faça login</a> para avaliar.</p>
-        {% endif %}
+        </div>
     </div>
 </div>
 
+<!-- SCRIPT PARA TROCAR A FOTO PRINCIPAL -->
 <script>
-function verificarAvaliacao() {
-    {% if not avaliacoes %}
-        alert("Sem avaliações ainda. Seja o primeiro!");
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    {% else %}
-        document.getElementById("secao-avaliacoes").scrollIntoView({ behavior: 'smooth' });
-    {% endif %}
+function mudarFoto(src) {
+    const fotoPrincipal = document.getElementById('foto-principal');
+    fotoPrincipal.style.opacity = '0'; // Efeito de transição
+    setTimeout(() => {
+        fotoPrincipal.src = src;
+        fotoPrincipal.style.opacity = '1';
+    }, 200);
+
+    // Ajusta as bordas das miniaturas
+    const miniaturas = document.querySelectorAll('.miniatura');
+    miniaturas.forEach(img => {
+        img.style.border = '1px solid #ddd';
+    });
+    event.target.style.border = '2px solid #198754';
 }
 </script>
 {% endblock %}

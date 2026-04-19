@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Novo Endereço{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <h2 style="color: #198754; text-transform: uppercase; text-align: center; margin-bottom: 30px;">📍 Cadastrar Endereço</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="grid-column: span 2;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Tipo (Ex: Casa, Trabalho)</label>
+                {{ form.tipo }}
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Rua / Avenida</label>
+                {{ form.rua }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Número</label>
+                {{ form.numero }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">CEP</label>
+                {{ form.cep }}
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Bairro</label>
+                {{ form.bairro }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Cidade</label>
+                {{ form.cidade }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Estado (UF)</label>
+                {{ form.estado }}
+            </div>
+
+            <div style="grid-column: span 2; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    {{ form.padrao }} <strong>Definir como endereço principal</strong>
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-verde" style="width: 100%; margin-top: 30px; padding: 15px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold;">
+            SALVAR ENDEREÇO
+        </button>
+        <a href="{% url 'lojaapp:meusdados' %}" style="display: block; text-align: center; margin-top: 15px; color: #666; text-decoration: none;">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    document.querySelectorAll('input:not([type="checkbox"]), select').forEach(el => {
+        el.style.width = '100%';
+        el.style.padding = '12px';
+        el.style.border = '1px solid #ccc';
+        el.style.borderRadius = '8px';
+        el.style.boxSizing = 'border-box';
+    });
+</script>
+{% endblock %}

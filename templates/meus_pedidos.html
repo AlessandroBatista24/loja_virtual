@@ -57,11 +57,27 @@
         </div>
         
         <!-- Link para o produto para facilitar a avaliação -->
-        <div style="margin-top: 15px; text-align: right;">
-            <a href="{% url 'lojaapp:produtodetalhe' p.carrinho.carrinhoproduto_set.first.produto.slug %}" class="btn-detalhes" style="padding: 8px 15px; font-size: 12px; text-decoration: none;">
-                Ver detalhes e Avaliar Produto →
-            </a>
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+        <p style="font-size: 0.85rem; font-weight: bold; color: #333; margin-bottom: 10px;">Itens deste Pedido:</p>
+        
+        {% for item in p.carrinho.carrinhoproduto_set.all %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #f0f0f0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                {% if item.produto.image %}
+                    <img src="{{ item.produto.image.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
+                {% endif %}
+                <span style="font-size: 0.9rem; color: #555;">{{ item.produto.titulo }} (x{{ item.quantidade }})</span>
+            </div>
+
+            <!-- Se o pedido estiver finalizado, mostra o botão de avaliar para este produto específico -->
+            {% if p.pedido_status == "Pedido Finalizado" %}
+                <a href="{% url 'lojaapp:produtodetalhe' item.produto.slug %}" class="btn-verde" style="padding: 5px 12px; font-size: 11px; text-decoration: none; border-radius: 5px;">
+                    Avaliar Produto
+                </a>
+            {% endif %}
         </div>
+    {% endfor %}
+</div>
     </div>
     {% empty %}
     <div style="text-align: center; padding: 50px; background: white; border-radius: 15px;">

@@ -2,9 +2,9 @@
 {% block title %}Meus Dados{% endblock %}
 
 {% block content %}
-<div style="max-width: 700px; margin: 40px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+<div style="max-width: 900px; margin: 40px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
     
-    <!-- BLOCO DE MENSAGENS DE SUCESSO OU ERRO -->
+    <!-- MENSAGENS -->
     {% if messages %}
         {% for message in messages %}
             <div style="padding: 15px; margin-bottom: 20px; border-radius: 8px; text-align: center; font-weight: bold; 
@@ -14,75 +14,52 @@
         {% endfor %}
     {% endif %}
 
-    <h2 style="color: #198754; text-transform: uppercase; text-align: center; margin-bottom: 10px;">🏠 Meus Dados de Entrega</h2>
-    <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 30px;">
-        Mantenha seu endereço atualizado para facilitar suas compras.
-    </p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="color: #198754; text-transform: uppercase; margin: 0;">📍 Meus Endereços</h2>
+        <a href="{% url 'lojaapp:enderecocreate' %}" class="btn-verde" style="padding: 10px 20px; text-decoration: none; border-radius: 8px; font-size: 0.9rem;">
+            + NOVO ENDEREÇO
+        </a>
+    </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <!-- Nome Completo -->
-            <div style="grid-column: span 2;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Nome Completo</label>
-                <input type="text" name="nome_completo" value="{{ cliente.nome_completo|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-            </div>
+    <!-- LISTA DE ENDEREÇOS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+        {% for end in enderecos %}
+        <div style="border: 1px solid {% if end.padrao %}#198754{% else %}#eee{% endif %}; padding: 20px; border-radius: 12px; position: relative; background: {% if end.padrao %}#f0fff4{% else %}#fff{% endif %}; transition: 0.3s;">
+            {% if end.padrao %}
+                <span style="position: absolute; top: 10px; right: 10px; background: #198754; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; font-weight: bold;">PADRÃO</span>
+            {% endif %}
+            
+            <strong style="display: block; color: #333; margin-bottom: 5px; text-transform: uppercase; font-size: 0.8rem;">{{ end.tipo }}</strong>
+            <p style="margin: 0; font-size: 0.9rem; color: #555; font-weight: bold;">{{ end.rua }}, {{ end.numero }}</p>
+            <p style="margin: 0; font-size: 0.85rem; color: #666;">{{ end.bairro }}</p>
+            <p style="margin: 0; font-size: 0.85rem; color: #666;">{{ end.cidade }} - {{ end.estado }}</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #999;">CEP: {{ end.cep }}</p>
 
-            <!-- Endereço -->
-            <div style="grid-column: span 2;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Rua / Avenida</label>
-                <input type="text" name="endereco" value="{{ cliente.endereco|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-            </div>
-
-            <!-- Número -->
-            <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Número</label>
-                <input type="text" name="numero" value="{{ cliente.numero|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-            </div>
-
-            <!-- CEP -->
-            <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">CEP</label>
-                <input type="text" name="cep" value="{{ cliente.cep|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-            </div>
-
-            <!-- Bairro -->
-            <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Bairro</label>
-                <input type="text" name="bairro" value="{{ cliente.bairro|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-            </div>
-
-            <!-- Cidade -->
-            <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Cidade</label>
-                <input type="text" name="cidade" value="{{ cliente.cidade|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-            </div>
-
-            <!-- Estado -->
-            <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Estado (UF)</label>
-                <input type="text" name="estado" maxlength="2" value="{{ cliente.estado|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" placeholder="Ex: SP">
-            </div>
-
-            <!-- Telefone -->
-            <div>
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Telefone</label>
-                <input type="text" name="telefone" value="{{ cliente.telefone|default:'' }}" required 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display: flex; gap: 15px;">
+                <a href="{% url 'lojaapp:enderecoedit' end.id %}" style="color: #198754; font-size: 0.8rem; text-decoration: none; font-weight: bold;">✏️ Editar</a>
+                <a href="{% url 'lojaapp:enderecodelete' end.id %}" style="color: #dc3545; font-size: 0.8rem; text-decoration: none;" onclick="return confirm('Excluir este endereço?')">🗑️ Excluir</a>
             </div>
         </div>
+        {% empty %}
+        <div style="grid-column: span 3; text-align: center; padding: 40px; border: 2px dashed #eee; border-radius: 15px;">
+            <p style="color: #999;">Você ainda não cadastrou nenhum endereço de entrega.</p>
+        </div>
+        {% endfor %}
+    </div>
 
-        <button type="submit" class="btn-verde" style="width: 100%; margin-top: 30px; padding: 15px; border: none; cursor: pointer; font-size: 1.1rem; font-weight: bold; color: white; border-radius: 8px;">
-            💾 SALVAR ENDEREÇO PADRÃO
-        </button>
-    </form>
+    <hr style="margin: 50px 0 30px 0; border: 0; border-top: 1px solid #eee;">
+
+    <!-- SEGURANÇA -->
+    <div style="background: #fff5f5; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffe3e3;">
+        <div>
+            <h4 style="margin: 0; color: #333;">Segurança da Conta</h4>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">Proteja sua conta alterando sua senha periodicamente.</p>
+        </div>
+        
+        <a href="{% url 'lojaapp:alterarsenha' %}" 
+           style="background: #dc3545; color: white; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 0.9rem;">
+           🔒 Alterar Senha
+        </a>
+    </div>
 </div>
 {% endblock %}

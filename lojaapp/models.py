@@ -5,18 +5,32 @@ from django.db.models import Avg
 class Cliente(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nome_completo = models.CharField(max_length=200)
-    # --- NOVOS CAMPOS DE ENDEREÇO PADRÃO ---
-    endereco = models.CharField(max_length=200, null=True, blank=True)
-    numero = models.CharField(max_length=10, null=True, blank=True)
-    bairro = models.CharField(max_length=100, null=True, blank=True)
-    cidade = models.CharField(max_length=100, null=True, blank=True)
-    estado = models.CharField(max_length=2, null=True, blank=True)
-    cep = models.CharField(max_length=10, null=True, blank=True)
     telefone = models.CharField(max_length=15, null=True, blank=True)
     data_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.nome_completo
+
+class Endereco(models.Model):
+    TIPO_CHOICES = (('Casa', 'Casa'), ('Trabalho', 'Trabalho'), ('Outro', 'Outro'))
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name="meus_enderecos")
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='Casa')
+    rua = models.CharField(max_length=200)
+    numero = models.CharField(max_length=10)
+    complemento = models.CharField(max_length=100, null=True, blank=True)
+    bairro = models.CharField(max_length=100)
+    cidade = models.CharField(max_length=100)
+    estado = models.CharField(max_length=2)
+    cep = models.CharField(max_length=10)
+    padrao = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.padrao:
+            Endereco.objects.filter(cliente=self.cliente, padrao=True).update(padrao=False)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.tipo} - {self.rua}, {self.numero}"
 
 class Categoria(models.Model):
     titulo = models.CharField(max_length=200)
@@ -39,12 +53,12 @@ class Produto(models.Model):
     estoque = models.PositiveIntegerField(default=0)
 
     def media_avaliacao(self):
-        # O 'avaliacoes' aqui vem do related_name que você definiu no model Avaliacao
         media = self.avaliacoes.aggregate(Avg('nota'))['nota__avg']
         return round(media) if media else 0
 
     def __str__(self):
         return self.titulo
+
 
 class Avaliacao(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="avaliacoes")
@@ -108,5 +122,44 @@ class Pedido_order(models.Model):
     pedido_status = models.CharField(max_length=50, choices=PEDIDO_STATUS)
     criado_em = models.DateTimeField(auto_now_add=True)
 
+class PedidoRecebido(Pedido_order):
+    class Meta:
+        proxy = True
+        verbose_name = 'Pedido - 1. Novo'
+        verbose_name_plural = 'Pedidos - 1. Novos (Recebidos)'
+
+class PedidoProcessando(Pedido_order):
+    class Meta:
+        proxy = True
+        verbose_name = 'Pedido - 2. Em Preparo'
+        verbose_name_plural = 'Pedidos - 2. Processando'
+
+class PedidoCaminho(Pedido_order):
+    class Meta:
+        proxy = True
+        verbose_name = 'Pedido - 3. Enviado'
+        verbose_name_plural = 'Pedidos - 3. A Caminho'
+
+class PedidoFinalizado(Pedido_order):
+    class Meta:
+        proxy = True
+        verbose_name = 'Pedido - 4. Concluído'
+        verbose_name_plural = 'Pedidos - 4. Finalizados'
+
     def __str__(self):
         return f"Pedido: {self.id} - {self.ordenado_por}"
+    
+class ImagemProduto(models.Model):
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="imagens")
+    imagem = models.ImageField(upload_to="produtos/galeria")
+    
+class Banner(models.Model):
+    titulo = models.CharField(max_length=100)
+    imagem = models.ImageField(upload_to="banners/")
+    ativo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.titulo
+
+    def __str__(self):
+        return f"Foto de {self.produto.titulo}"

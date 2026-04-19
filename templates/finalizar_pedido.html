@@ -3,124 +3,71 @@
 
 {% block content %}
 <div style="margin-top: 20px;">
-    <p style="font-size: 0.9rem; color: #666;">
-        <a href="{% url 'lojaapp:home' %}" style="color: #198754; text-decoration: none;">Home</a> / 
-        <a href="{% url 'lojaapp:carrinho' %}" style="color: #198754; text-decoration: none;">Meu Carrinho</a> / 
-        Finalizar Pedido
-    </p>
-
-    <h2 style="color: #333; text-transform: uppercase; margin: 20px 0;">Checkout</h2>
+    <h2 style="color: #333; text-transform: uppercase; margin-bottom: 25px;">Finalizar Pedido</h2>
 
     <div style="display: flex; gap: 30px; flex-wrap: wrap;">
         
+        <!-- COLUNA ESQUERDA: ENDEREÇOS -->
         <div style="flex: 2; min-width: 300px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-            <h4 style="margin-top: 0; color: #198754;">Informações de Entrega</h4>
-            <p style="font-size: 0.8rem; color: #888;">Os campos foram preenchidos com seu endereço padrão. Você pode alterá-los se desejar entregar em outro local.</p>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h4 style="margin: 0; color: #198754;">Escolha o Endereço de Entrega:</h4>
+                <a href="{% url 'lojaapp:enderecocreate' %}" class="btn-detalhes" style="font-size: 0.8rem; padding: 8px 15px; text-decoration: none; border-radius: 5px;">+ Novo Endereço</a>
+            </div>
+
             <form action="" method="POST">
                 {% csrf_token %}
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                    
-                    <div style="grid-column: span 3;">
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nome Completo</label>
-                        <input type="text" name="ordenado_por" value="{{ cliente.nome_completo|default:request.user.cliente.nome_completo }}" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div style="grid-column: span 2;">
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Endereço (Rua/Av)</label>
-                        <input type="text" name="endereco" value="{{ cliente.endereco|default:'' }}" placeholder="Ex: Rua das Flores" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Número</label>
-                        <input type="text" name="numero" value="{{ cliente.numero|default:'' }}" placeholder="123" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">CEP</label>
-                        <input type="text" name="cep" value="{{ cliente.cep|default:'' }}" placeholder="00000-000" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Bairro</label>
-                        <input type="text" name="bairro" value="{{ cliente.bairro|default:'' }}" placeholder="Centro" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Complemento</label>
-                        <input type="text" name="complemento" value="{{ cliente.complemento|default:'' }}" placeholder="Apto, Bloco..." 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Cidade</label>
-                        <input type="text" name="cidade" value="{{ cliente.cidade|default:'' }}" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Estado (UF)</label>
-                        <input type="text" name="estado" value="{{ cliente.estado|default:'' }}" maxlength="2" placeholder="MG" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Telefone</label>
-                        <input type="text" name="telefone" value="{{ cliente.telefone|default:'' }}" placeholder="(00) 00000-0000" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-
-                    <div style="grid-column: span 3;">
-                        <label style="display: block; font-weight: bold; margin-bottom: 5px;">E-mail</label>
-                        <input type="email" name="email" value="{{ request.user.email }}" required 
-                               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
-                    </div>
-                </div>
-
-                <!-- BLOCO DO CUPOM -->
-                <div style="background: #fdf6e3; padding: 15px; border-radius: 10px; margin-top: 25px; border: 1px dashed #d39e00;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #856404; font-size: 0.9rem;">
-                        🎟️ Possui um Cupom de Desconto?
+                
+                <div style="display: grid; gap: 15px; margin-bottom: 30px;">
+                    {% for end in enderecos %}
+                    <label style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; transition: 0.3s;" class="card-selecao">
+                        <input type="radio" name="endereco_selecionado" value="{{ end.id }}" {% if end.padrao %}checked{% endif %} required>
+                        
+                        <div style="font-size: 0.9rem;">
+                            <strong style="display: block; color: #333;">{{ end.tipo|upper }}</strong>
+                            <span style="color: #666;">{{ end.rua }}, {{ end.numero }} - {{ end.bairro }}</span><br>
+                            <small style="color: #999;">{{ end.cidade }}/{{ end.estado }} - CEP: {{ end.cep }}</small>
+                        </div>
                     </label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" name="cupom" placeholder="Código do Cupom" 
-                               style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; text-transform: uppercase;">
+                    {% empty %}
+                    <div style="text-align: center; padding: 30px; border: 2px dashed #eee; border-radius: 10px;">
+                        <p style="color: #888;">Nenhum endereço encontrado.</p>
+                        <a href="{% url 'lojaapp:enderecocreate' %}" style="color: #198754; font-weight: bold; text-decoration: none;">Clique aqui para cadastrar um endereço</a>
                     </div>
-                    <small style="color: #666; font-size: 0.75rem; margin-top: 5px; display: block;">
-                        * O desconto será aplicado automaticamente ao finalizar o pedido.
-                    </small>
+                    {% endfor %}
                 </div>
 
-                <button type="submit" class="btn-verde" style="width: 100%; padding: 15px; margin-top: 20px; border: none; cursor: pointer; font-size: 1.1rem; text-transform: uppercase;">
-                    Finalizar Pedido
-                </button>
+                <!-- CORREÇÃO AQUI: Mudado de 'for' para 'if' -->
+                {% if enderecos %}
+                    <button type="submit" class="btn-verde" style="width: 100%; padding: 18px; font-size: 1.1rem; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase;">
+                        Confirmar e Finalizar Compra
+                    </button>
+                {% endif %}
             </form>
         </div>
 
-        <!-- Lado Direito: Resumo -->
-        <div style="flex: 1; min-width: 250px; background: #fdfdfd; padding: 25px; border-radius: 15px; border: 1px solid #eee; height: fit-content;">
-            <h4 style="margin-top: 0;">Resumo do Pedido</h4>
+        <!-- COLUNA DIREITA: RESUMO -->
+        <div style="flex: 1; min-width: 280px; background: #fdfdfd; padding: 25px; border-radius: 15px; border: 1px solid #eee; height: fit-content;">
+            <h4 style="margin-top: 0; color: #333;">Resumo do Pedido</h4>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
             <ul style="list-style: none; padding: 0; margin: 0;">
                 {% for item in carrinho.carrinhoproduto_set.all %}
-                <li style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 0.9rem;">
+                <li style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem;">
                     <span>{{ item.produto.titulo }} (x{{ item.quantidade }})</span>
                     <span style="font-weight: bold;">R$ {{ item.subtotal }}</span>
                 </li>
                 {% endfor %}
             </ul>
             <div style="display: flex; justify-content: space-between; margin-top: 20px; padding: 15px; background: #e9f5ee; border-radius: 8px; color: #198754;">
-                <span style="font-weight: bold; font-size: 1.1rem;">Total:</span>
+                <span style="font-weight: bold;">Total:</span>
                 <span style="font-weight: bold; font-size: 1.2rem;">R$ {{ carrinho.total }}</span>
             </div>
         </div>
 
     </div>
 </div>
+
+<style>
+    .card-selecao:hover { border-color: #198754 !important; background-color: #f0fff4; }
+    input[type="radio"]:checked + div { color: #198754; font-weight: bold; }
+</style>
 {% endblock %}

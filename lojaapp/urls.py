@@ -4,8 +4,9 @@ from .views import (
     CategoriaView, ProdutoDetalheView, AddCarrinhoView, 
     MeuCarrinhoView, ManipularCarrinhoView, CheckoutView,
     ClienteRegistroView, ClienteLoginView, ClienteLogoutView, AdminDashboardView,
-    AdminProdutoCreateView, MeusDadosView, MinhasAvaliacoesView, AvaliarProdutoView
-)
+    AdminProdutoCreateView, MeusDadosView, MinhasAvaliacoesView, AvaliarProdutoView,
+    EnderecoUpdateView, EnderecoCreateView, EnderecoDeleteView, AlterarSenhaView  
+) # <--- Fechei o parêntese aqui
 
 app_name = "lojaapp"
 
@@ -30,7 +31,10 @@ urlpatterns = [
     path("meus-dados/", MeusDadosView.as_view(), name="meusdados"),
     path("minhas-avaliacoes/", MinhasAvaliacoesView.as_view(), name="minhasavaliacoes"),
     path("avaliar-produto/<int:pro_id>/", AvaliarProdutoView.as_view(), name="avaliarproduto"),
-
-
-
+    path("alterar-senha/", AlterarSenhaView.as_view(), name="alterarsenha"),
+    
+    # ROTAS DE ENDEREÇO
+    path("endereco/novo/", EnderecoCreateView.as_view(), name="enderecocreate"),
+    path("endereco/editar/<int:pk>/", EnderecoUpdateView.as_view(), name="enderecoedit"),
+    path("endereco/deletar/<int:pk>/", EnderecoDeleteView.as_view(), name="enderecodelete"), # Adicionada para evitar novos erros NoReverseMatch
 ]

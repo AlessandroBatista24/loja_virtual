@@ -12,7 +12,7 @@ from django.contrib import messages
 
 from .models import (
     Produto, Categoria, Carrinho, CarrinhoProduto, 
-    Avaliacao, Pedido_order, Cliente, Cupom, Endereco, Banner, ImagemProduto
+    Avaliacao, Pedido_order, Cliente, Cupom, Endereco, Banner, ImagemProduto, MensagemContato
 )
 
 User = get_user_model()
@@ -450,7 +450,28 @@ class AvaliarProdutoView(LoginRequiredMixin, View):
         return redirect("lojaapp:produtodetalhe", slug=produto.slug)
 
 class SobreView(TemplateView): template_name = "sobre.html"
-class ContatoView(TemplateView): template_name = "contato.html"
+
+class ContatoView(TemplateView):
+    template_name = "contato.html"
+
+    def post(self, request, *args, **kwargs):
+        # 1. Pega os dados do formulário
+        nome = request.POST.get('nome')
+        email = request.POST.get('email')
+        mensagem = request.POST.get('mensagem')
+
+        # 2. Salva no banco de dados
+        MensagemContato.objects.create(
+            nome=nome,
+            email=email,
+            mensagem=mensagem
+        )
+
+        # 3. CRIA A MENSAGEM DE CONFIRMAÇÃO
+        messages.success(request, "✅ Sua mensagem foi enviada! Entraremos em contato em breve.")
+        
+        # 4. Limpa o formulário e volta para a página
+        return redirect("lojaapp:contato")
 class MeuCarrinhoView(TemplateView):
     template_name = "meu_carrinho.html"
     

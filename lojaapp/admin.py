@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from .models import (
     Cliente, Categoria, Produto, Carrinho, CarrinhoProduto, 
     Pedido_order, Avaliacao, PedidoRecebido, PedidoProcessando, 
-    PedidoCaminho, PedidoFinalizado, Endereco, ImagemProduto, Cupom, Banner
+    PedidoCaminho, PedidoFinalizado, Endereco, ImagemProduto, Cupom, Banner, MensagemContato
 )
 # --- 1. CONFIGURAÇÕES VISUAIS (INLINES) ---
 
@@ -116,6 +116,11 @@ class PedidoFinalizadoAdmin(PedidoBaseAdmin):
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ['titulo', 'slug']
     prepopulated_fields = {'slug': ('titulo',)}
+
+@admin.register(MensagemContato)
+class MensagemContatoAdmin(admin.ModelAdmin):
+    list_display = ['nome', 'email', 'data_envio']
+    readonly_fields = ['nome', 'email', 'mensagem', 'data_envio'] 
 
 @admin.register(Carrinho)
 class CarrinhoAdmin(admin.ModelAdmin):

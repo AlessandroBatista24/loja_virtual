@@ -403,3 +403,54 @@ input:focus, textarea:focus, select:focus {
     outline: none !important;
     box-shadow: 0 0 8px rgba(25, 135, 84, 0.3) !important;
 }
+/* --- BANNER ÚNICO OU ROTATIVO: LARGURA TOTAL --- */
+
+#bannerHome {
+    width: 100vw !important;
+    height: 400px !important;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: hidden;
+    background-color: #eee;
+}
+
+/* Garante que a imagem preencha o espaço sem sobras ou cortes estranhos */
+#bannerHome .carousel-item img, 
+#bannerHome img {
+    width: 100vw !important;
+    height: 400px !important;
+    object-fit: cover !important; /* Mantém a proporção e corta as bordas se necessário */
+    display: block;
+}
+
+/* Fix para garantir que o item único apareça */
+.carousel-item.active, .carousel-item {
+    display: block !important;
+}
+/* Estilo base dos botões de filtro */
+.filtro-categoria {
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    background-color: #eee;
+    color: #333;
+    transition: 0.3s;
+}
+
+/* Efeito Hover (Verde escuro igual ao menu superior) */
+.filtro-categoria:hover {
+    background-color: #0a3622 !important;
+    color: white !important;
+}
+
+/* Estado Ativo (Fica verde quando clicado) */
+.filtro-categoria-active {
+    background-color: #198754 !important;
+    color: white !important;
+}
+

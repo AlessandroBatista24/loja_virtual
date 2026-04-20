@@ -62,11 +62,13 @@ body {
     letter-spacing: 1px;
 }
 
-/* BUSCA */
-.busca-container { 
-    display: flex; 
+/* MOVER A BUSCA PARA A ESQUERDA */
+.busca-container {
+    display: flex;
     justify-content: center;
     align-items: center;
+    margin-right: 150px; /* EMPURRA 60px para a esquerda, afastando dos botões */
+    flex: 1; /* Ajuda a ocupar o espaço central */
 }
 
 .busca-form { 
@@ -89,22 +91,37 @@ body {
     border-radius: 50px 0 0 50px; 
 }
 
-/* BOTÃO: Agora ele fica curto sem afetar o input */
-.busca-form button { 
-    border: none; 
-    background: #ffc107; 
-    padding: 0 12px; /* VALOR CURTO: Só o espaço do texto */
-    font-weight: bold; 
-    cursor: pointer; 
-    color: #333; 
-    height: 42px; 
-    font-size: 11px; /* Fonte menor para combinar com o botão estreito */
+/* DEIXAR O BOTÃO BUSCAR RETANGULAR E ESTREITO */
+.busca-form button {
+    border: none;
+    background: #ffc107; /* Cor amarela original */
+    padding: 0 15px;      /* Espaçamento lateral curto */
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    height: 34px;        /* Mais estreito que o campo de busca (que tem 42px) */
+    font-size: 11px;
     text-transform: uppercase;
-    border-radius: 0 50px 50px 0;
+    border-radius: 4px;  /* RETANGULAR: Pouca curvatura nos cantos */
     transition: 0.3s;
-    margin-left: -1px; 
+    margin-left: 10px;   /* Pequeno espaço entre o campo e o botão */
+}
+/* AJUSTE DO CAMPO DE INPUT PARA COMBINAR */
+.busca-form input {
+    border: 1px solid #ddd;
+    padding: 0 15px;
+    font-size: 14px;
+    height: 38px;        /* Ajustado para combinar com o botão novo */
+    width: 350px !important;
+    background: white;
+    color: #333;
+    outline: none;
+    border-radius: 4px;  /* RETANGULAR: Para combinar com o botão */
 }
 
+.busca-form button:hover {
+    background: #e0a800;
+}
 /* Resto dos Links e Hover */
 .nav-links {
     position: absolute;
@@ -118,7 +135,7 @@ body {
     color: white; 
     text-decoration: none; 
     font-weight: bold; 
-    font-size: 13px; 
+    font-size: 15px; 
     text-transform: uppercase;
     padding: 10px 15px;
     transition: 0.3s;
@@ -140,7 +157,7 @@ body {
    ============================================================ */
 .container {
     max-width: 95% !important; /* Quase a tela toda */
-    width: 1500px !important;  /* Espaço de sobra para 5 itens */
+    width: 100% !important;  /* Espaço de sobra para 5 itens */
     margin: 0 auto !important;
 }
 
@@ -148,7 +165,7 @@ body {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr) !important; /* FORÇA 5 COLUNAS */
     gap: 20px !important;
-    width: 100% !important;
+    width: 20px 0 !important;
 }
 /* Responsividade para manter o layout bonito em telas menores */
 @media (max-width: 1200px) {
@@ -178,10 +195,9 @@ body {
 }
 
 .card img { 
-    max-width: 100%; 
-    height: 180px; 
-    object-fit: cover; 
-    border-radius: 8px; 
+    max-width: 220px !important; 
+    width: 100% !important;
+    object-fit: contain !important;
 }
 
 .acoes { 
@@ -307,14 +323,13 @@ body {
     width: 100%;
 }
 
-.rodape .topo {
-    position: relative;
-    display: flex;
-    justify-content: center; 
-    align-items: flex-start; 
-    max-width: 100%;
+rodape .topo {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    max-width: 1200px;
     margin: 0 auto;
-    min-height: 150px; 
+    position: relative;
 }
 
 .rodape-logo {
@@ -335,7 +350,9 @@ body {
     margin-top: 10px;
     line-height: 1.5;
 }
-
+.rodape-atendimento {
+    text-align: right !important;
+}
 .rodape-links-container {
     text-align: center;
 }
@@ -403,8 +420,7 @@ input:focus, textarea:focus, select:focus {
     outline: none !important;
     box-shadow: 0 0 8px rgba(25, 135, 84, 0.3) !important;
 }
-/* --- BANNER ÚNICO OU ROTATIVO: LARGURA TOTAL --- */
-
+/* --- BANNER FULL WIDTH CORRIGIDO --- */
 #bannerHome {
     width: 100vw !important;
     height: 400px !important;
@@ -414,43 +430,17 @@ input:focus, textarea:focus, select:focus {
     margin-left: -50vw;
     margin-right: -50vw;
     overflow: hidden;
-    background-color: #eee;
+    background-color: #000;
 }
 
-/* Garante que a imagem preencha o espaço sem sobras ou cortes estranhos */
-#bannerHome .carousel-item img, 
-#bannerHome img {
+/* IMPORTANTE: Removi o display:block !important que travava a troca */
+#bannerHome .carousel-item img {
     width: 100vw !important;
     height: 400px !important;
-    object-fit: cover !important; /* Mantém a proporção e corta as bordas se necessário */
-    display: block;
+    object-fit: cover !important;
 }
 
-/* Fix para garantir que o item único apareça */
-.carousel-item.active, .carousel-item {
-    display: block !important;
+/* Garante que o Bootstrap consiga esconder as imagens inativas */
+.carousel-item {
+    transition: transform 0.6s ease-in-out !important;
 }
-/* Estilo base dos botões de filtro */
-.filtro-categoria {
-    text-decoration: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    background-color: #eee;
-    color: #333;
-    transition: 0.3s;
-}
-
-/* Efeito Hover (Verde escuro igual ao menu superior) */
-.filtro-categoria:hover {
-    background-color: #0a3622 !important;
-    color: white !important;
-}
-
-/* Estado Ativo (Fica verde quando clicado) */
-.filtro-categoria-active {
-    background-color: #198754 !important;
-    color: white !important;
-}
-

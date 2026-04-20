@@ -7,16 +7,18 @@
 
     <div style="display: flex; gap: 30px; flex-wrap: wrap;">
         
-        <!-- COLUNA ESQUERDA: ENDEREÇOS -->
+        <!-- COLUNA ESQUERDA: ENDEREÇOS E PAGAMENTO -->
         <div style="flex: 2; min-width: 300px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h4 style="margin: 0; color: #198754;">Escolha o Endereço de Entrega:</h4>
-                <a href="{% url 'lojaapp:enderecocreate' %}" class="btn-detalhes" style="font-size: 0.8rem; padding: 8px 15px; text-decoration: none; border-radius: 5px;">+ Novo Endereço</a>
-            </div>
-
+            
             <form action="" method="POST">
                 {% csrf_token %}
-                
+
+                <!-- 1. SELEÇÃO DE ENDEREÇO -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h4 style="margin: 0; color: #198754;">1. Endereço de Entrega:</h4>
+                    <a href="{% url 'lojaapp:enderecocreate' %}" class="btn-detalhes" style="font-size: 0.8rem; padding: 8px 15px; text-decoration: none; border-radius: 5px;">+ Novo Endereço</a>
+                </div>
+
                 <div style="display: grid; gap: 15px; margin-bottom: 30px;">
                     {% for end in enderecos %}
                     <label style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; transition: 0.3s;" class="card-selecao">
@@ -36,10 +38,32 @@
                     {% endfor %}
                 </div>
 
-                <!-- CORREÇÃO AQUI: Mudado de 'for' para 'if' -->
+                <!-- 2. SELEÇÃO DE PAGAMENTO -->
                 {% if enderecos %}
+                    <h4 style="margin: 30px 0 15px 0; color: #198754;">2. Forma de Pagamento:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 30px;">
+                        
+                        <label style="display: flex; flex-direction: column; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; text-align: center;" class="card-selecao">
+                            <input type="radio" name="metodo_pagamento" value="Pix" checked required>
+                            <span style="font-size: 1.2rem; margin-top: 5px;">📱</span>
+                            <span style="font-size: 0.8rem; font-weight: bold;">PIX</span>
+                        </label>
+
+                        <label style="display: flex; flex-direction: column; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; text-align: center;" class="card-selecao">
+                            <input type="radio" name="metodo_pagamento" value="Cartao" required>
+                            <span style="font-size: 1.2rem; margin-top: 5px;">💳</span>
+                            <span style="font-size: 0.8rem; font-weight: bold;">CARTÃO</span>
+                        </label>
+
+                        <label style="display: flex; flex-direction: column; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; text-align: center;" class="card-selecao">
+                            <input type="radio" name="metodo_pagamento" value="Boleto" required>
+                            <span style="font-size: 1.2rem; margin-top: 5px;">📄</span>
+                            <span style="font-size: 0.8rem; font-weight: bold;">BOLETO</span>
+                        </label>
+                    </div>
+
                     <button type="submit" class="btn-verde" style="width: 100%; padding: 18px; font-size: 1.1rem; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase;">
-                        Confirmar e Finalizar Compra
+                        Confirmar e Ir para Pagamento
                     </button>
                 {% endif %}
             </form>
@@ -49,25 +73,34 @@
         <div style="flex: 1; min-width: 280px; background: #fdfdfd; padding: 25px; border-radius: 15px; border: 1px solid #eee; height: fit-content;">
             <h4 style="margin-top: 0; color: #333;">Resumo do Pedido</h4>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+            
             <ul style="list-style: none; padding: 0; margin: 0;">
                 {% for item in carrinho.carrinhoproduto_set.all %}
                 <li style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem;">
-                    <span>{{ item.produto.titulo }} (x{{ item.quantidade }})</span>
+                    <span style="max-width: 70%;">{{ item.produto.titulo }} (x{{ item.quantidade }})</span>
                     <span style="font-weight: bold;">R$ {{ item.subtotal }}</span>
                 </li>
                 {% endfor %}
             </ul>
+
             <div style="display: flex; justify-content: space-between; margin-top: 20px; padding: 15px; background: #e9f5ee; border-radius: 8px; color: #198754;">
-                <span style="font-weight: bold;">Total:</span>
+                <span style="font-weight: bold;">Total a pagar:</span>
                 <span style="font-weight: bold; font-size: 1.2rem;">R$ {{ carrinho.total }}</span>
             </div>
+            
+            <p style="font-size: 0.75rem; color: #888; margin-top: 15px; text-align: center;">
+                🔒 Pagamento processado com segurança pelo Mercado Pago.
+            </p>
         </div>
 
     </div>
 </div>
 
 <style>
+    .card-selecao { border: 2px solid #eee !important; }
     .card-selecao:hover { border-color: #198754 !important; background-color: #f0fff4; }
-    input[type="radio"]:checked + div { color: #198754; font-weight: bold; }
+    input[type="radio"]:checked + div, 
+    input[type="radio"]:checked ~ span { color: #198754; font-weight: bold; }
+    input[type="radio"]:checked { accent-color: #198754; }
 </style>
 {% endblock %}

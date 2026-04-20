@@ -9,13 +9,36 @@ from django.urls import reverse_lazy
 from django.db.models import Avg, Sum, Q # Aggiunto Q per filtri complessi
 from django.db import transaction 
 from django.contrib import messages
-
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import mercadopago
 from .models import (
     Produto, Categoria, Carrinho, CarrinhoProduto, 
     Avaliacao, Pedido_order, Cliente, Cupom, Endereco, Banner, ImagemProduto, MensagemContato
 )
 
 User = get_user_model()
+
+@csrf_exempt
+def webhook_mercadopago(request):
+    # O Mercado Pago envia um ID de pagamento via parâmetro na URL ou no corpo
+    payment_id = request.GET.get('data.id') or request.POST.get('data.id')
+    
+    if payment_id:
+        sdk = mercadopago.SDK("SEU_ACCESS_TOKEN_AQUI")
+        payment_info = sdk.payment().get(payment_id)
+        
+        # Pega o ID do pedido que salvamos no 'external_reference'
+        pedido_id = payment_info["response"]["external_reference"]
+        status = payment_info["response"]["status"]
+
+        if status == "approved":
+            pedido = Pedido_order.objects.get(id=pedido_id)
+            pedido.pagamento_status = "Pago"
+            pedido.pagamento_confirmado = True
+            pedido.save()
+            
+    return HttpResponse(status=200)
 
 # ============================================================
 # NAVEGAÇÃO E PRODUTOS
@@ -204,35 +227,23 @@ class CheckoutView(View):
         carrinho_obj = get_object_or_404(Carrinho, id=carrinho_id)
         
         endereco_id = request.POST.get("endereco_selecionado")
+        metodo_pagto = request.POST.get("metodo_pagamento", "Pix")
+
         if not endereco_id:
             messages.error(request, "Por favor, selecione um endereço.")
             return redirect("lojaapp:finalizarpedido")
             
         endereco_obj = get_object_or_404(Endereco, id=endereco_id, cliente__user=request.user)
-        cliente = request.user.cliente # Pega o objeto cliente logado
+        cliente = request.user.cliente
 
         try:
             with transaction.atomic():
-                # 1. Vincular o Cliente ao Carrinho (CRÍTICO para avaliações futuras)
-                carrinho_obj.cliente = cliente
-                
-                # 2. Recálculo de segurança de preços atuais
-                total_atualizado = 0
-                for item in carrinho_obj.carrinhoproduto_set.all():
-                    item.subtotal = item.quantidade * item.produto.venda
-                    item.save()
-                    total_atualizado += item.subtotal
-                
-                carrinho_obj.total = total_atualizado
-                carrinho_obj.save()
-
-                # 3. Criar o Pedido Oficial
+                # 1. Cria o Pedido (Mantenha como você já tem)
                 novo_pedido = Pedido_order.objects.create(
                     carrinho=carrinho_obj, 
                     ordenado_por=cliente.nome_completo,
                     endereco=endereco_obj.rua, 
                     numero=endereco_obj.numero,
-                    complemento=endereco_obj.complemento,
                     bairro=endereco_obj.bairro, 
                     cidade=endereco_obj.cidade,
                     estado=endereco_obj.estado, 
@@ -242,23 +253,65 @@ class CheckoutView(View):
                     subtotal=carrinho_obj.total, 
                     disconto=0, 
                     total=carrinho_obj.total,
-                    pedido_status="Pedido Recebido"
+                    pedido_status="Pedido Recebido",
+                    metodo_pagamento=metodo_pagto,
+                    pagamento_status="Pendente"
                 )
 
-                # 4. Baixa de estoque
+                # 2. Configura Mercado Pago
+                # VERIFIQUE SE O TOKEN ABAIXO É O "ACCESS TOKEN" (NÃO É O PUBLIC KEY)
+                sdk = mercadopago.SDK("SEU_ACCESS_TOKEN_REAL_AQUI")
+                
+                preference_data = {
+                    "items": [
+                        {
+                            "title": f"Pedido #{novo_pedido.id}",
+                            "quantity": 1,
+                            "unit_price": float(novo_pedido.total),
+                            "currency_id": "BRL"
+                        }
+                    ],
+                    "external_reference": str(novo_pedido.id),
+                    "back_urls": {
+                        "success": request.build_absolute_uri(reverse_lazy('lojaapp:home')),
+                        "failure": request.build_absolute_uri(reverse_lazy('lojaapp:carrinho')),
+                    },
+                    "auto_return": "approved",
+                }
+                
+                # CHAMADA À API
+                preference_response = sdk.preference().create(preference_data)
+
+                # --- VALIDAÇÃO CRÍTICA DO NONE ---
+                if not preference_response or "response" not in preference_response:
+                    print(f"❌ RESPOSTA VAZIA DA API: {preference_response}")
+                    raise Exception("O Mercado Pago não respondeu. Verifique sua conexão e o Access Token.")
+
+                # Agora é seguro tentar o .get()
+                response_data = preference_response.get("response")
+                if not response_data or "init_point" not in response_data:
+                    msg_erro = response_data.get("message") if response_data else "Erro desconhecido"
+                    print(f"❌ DETALHES DO ERRO: {response_data}")
+                    raise Exception(f"Falha ao gerar link: {msg_erro}")
+
+                link_pagamento = response_data["init_point"]
+
+                # 3. Baixa de estoque e Limpeza
                 for cp in carrinho_obj.carrinhoproduto_set.all():
                     cp.produto.estoque -= cp.quantidade
                     cp.produto.save()
 
-                # 5. Limpar sessão e finalizar
                 del request.session["carrinho_id"]
-                messages.success(request, "Pedido realizado com sucesso!")
-                return render(request, "pagamento.html", {"pedido": novo_pedido})
+                
+                return render(request, "pagamento.html", {
+                    "pedido": novo_pedido, 
+                    "link_pagamento": link_pagamento
+                })
 
         except Exception as e:
-            messages.error(request, f"Erro ao processar pedido: {e}")
+            print(f"🚨 ERRO FINAL: {e}")
+            messages.error(request, f"Erro ao processar: {e}")
             return redirect("lojaapp:finalizarpedido")
-
 # ============================================================
 # ÁREA DO CLIENTE E SEGURANÇA
 # ============================================================

@@ -127,6 +127,30 @@ PEDIDO_STATUS =(
     ("Pedido Cancelado","Pedido Cancelado"),
 )
 
+# --- OPÇÕES DE STATUS E PAGAMENTO (FORA DA CLASSE) ---
+
+PEDIDO_STATUS = (
+    ("Pedido Recebido", "Pedido Recebido"),
+    ("Pedido Processando", "Pedido Processando"),
+    ("Pedido Caminho", "Pedido Caminho"),
+    ("Pedido Finalizado", "Pedido Finalizado"),
+    ("Pedido Cancelado", "Pedido Cancelado"),
+)
+
+METODO_PAGAMENTO = (
+    ("Pix", "Pix"),
+    ("Cartao", "Cartão de Crédito"),
+    ("Boleto", "Boleto Bancário"),
+)
+
+PAGAMENTO_STATUS = (
+    ("Pendente", "Pendente"),
+    ("Pago", "Pago"),
+    ("Cancelado", "Cancelado"),
+)
+
+# --- MODELO DE PEDIDO ---
+
 class Pedido_order(models.Model):
     carrinho = models.OneToOneField(Carrinho, on_delete=models.CASCADE)
     ordenado_por = models.CharField(max_length=200)
@@ -139,11 +163,25 @@ class Pedido_order(models.Model):
     cep = models.CharField(max_length=10)
     telefone = models.CharField(max_length=15)
     email = models.EmailField(null=True, blank=True)
+    
+    # Valores Financeiros
     subtotal = models.PositiveIntegerField()
     disconto = models.PositiveIntegerField()
     total = models.PositiveIntegerField()
-    pedido_status = models.CharField(max_length=50, choices=PEDIDO_STATUS)
+    
+    # Status do Pedido (Logística)
+    pedido_status = models.CharField(max_length=50, choices=PEDIDO_STATUS, default="Pedido Recebido")
     criado_em = models.DateTimeField(auto_now_add=True)
+
+    # Controle de Pagamento
+    metodo_pagamento = models.CharField(max_length=20, choices=METODO_PAGAMENTO, default="Pix")
+    pagamento_status = models.CharField(max_length=20, choices=PAGAMENTO_STATUS, default="Pendente")
+    pagamento_confirmado = models.BooleanField(default=False)
+    id_transacao = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return f"Pedido: {self.id} - {self.ordenado_por}"
+
 
 class PedidoRecebido(Pedido_order):
     class Meta:

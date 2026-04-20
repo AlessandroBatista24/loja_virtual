@@ -76,8 +76,24 @@ class ProdutoAdmin(admin.ModelAdmin):
 
 @admin.register(Pedido_order)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'ordenado_por', 'total', 'pedido_status', 'criado_em']
+    # Adicionamos 'pagamento_status' e 'metodo_pagamento' na lista
+    list_display = ['id', 'ordenado_por', 'total', 'status_pagamento_colorido', 'pedido_status', 'criado_em']
     list_editable = ['pedido_status']
+    list_filter = ['pagamento_status', 'pedido_status', 'metodo_pagamento']
+    search_fields = ['ordenado_por', 'id']
+
+    def status_pagamento_colorido(self, obj):
+        cores = {
+            'Pago': 'green',
+            'Pendente': '#E1AD01', # Amarelo/Dourado
+            'Cancelado': 'red'
+        }
+        cor = cores.get(obj.pagamento_status, 'black')
+        return format_html('<b style="color: {};">{}</b>', cor, obj.pagamento_status)
+    
+    status_pagamento_colorido.short_description = 'Status Pagto'
+
+    # Mantém aquela tabela de produtos que você já tinha
     readonly_fields = ['exibir_produtos_detalhe']
 
     def exibir_produtos_detalhe(self, obj):
@@ -86,7 +102,9 @@ class PedidoAdmin(admin.ModelAdmin):
         for p in produtos:
             html += f"<tr><td>{p.produto.titulo}</td><td>{p.quantidade}</td><td>R$ {p.subtotal}</td></tr>"
         return mark_safe(html + "</tbody></table>")
+    
     exibir_produtos_detalhe.short_description = "Itens do Pedido"
+
 
 # --- 4. ABAS ORGANIZADAS DE PEDIDOS (PROXY) ---
 
